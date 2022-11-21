@@ -15,12 +15,20 @@ import {Input} from '@bearei/react-input';
 
 const input = (
   <Input
-    prefix="prefix"
-    suffix="suffix"
-    renderContainer={(id, element) => <div id={id}>{element}</div>}
-    renderInner={element => <div>{element}</div>}
-    renderFix={(fixType, element) => <span>{element}</span>}
-    renderChildren={childrenProps => <input {...childrenProps} />}
+    prefix="before"
+    suffix="after"
+    renderContainer={({id}, element) => (
+      <div data-cy="container" id={id} tabIndex={1}>
+        {element}
+      </div>
+    )}
+    renderInner={(_props, element) => (
+      <div data-cy="inner" tabIndex={1}>
+        {element}
+      </div>
+    )}
+    renderFixed={({position}, element) => <span data-cy={`${position}`}>{element}</span>}
+    renderChildren={props => <input data-cy="input" {...props} />}
   />
 );
 
