@@ -1,20 +1,41 @@
 import * as React from 'react';
 import {useState, useEffect, useId} from 'react';
-import {NativeSyntheticEvent, TextInputChangeEventData, TextInputProps} from 'react-native';
-import {getPlatform} from '@bearei/react-util/lib-esm/getPlatform';
+import {
+  NativeSyntheticEvent,
+  TextInputChangeEventData,
+  TextInputProps,
+  TextInputFocusEventData,
+} from 'react-native';
+import {getPlatform} from '@bearei/react-util/lib/getPlatform';
 
 /**
  * Input change event.
  */
-export type InputChangeEvent =
-  | React.ChangeEvent<HTMLInputElement>
-  | NativeSyntheticEvent<TextInputChangeEventData>;
+export type InputChangeEvent = React.ChangeEvent<HTMLInputElement> &
+  NativeSyntheticEvent<TextInputChangeEventData>;
+
+/**
+ * Input change event.
+ */
+export type InputFocusEvent =
+  | React.FocusEvent<HTMLInputElement, Element>
+  | NativeSyntheticEvent<TextInputFocusEventData>;
+
+export type InputOmitProps = Omit<
+  InputProps,
+  | 'renderFixed'
+  | 'renderInner'
+  | 'renderContainer'
+  | 'renderChildren'
+  | 'prefix'
+  | 'suffix'
+  | 'onChange'
+>;
 
 /**
  * Input children element props.
  */
-export interface InputChildrenProps
-  extends Pick<InputProps, 'value' | 'defaultValue' | 'disabled'> {
+export interface InputChildrenProps extends InputOmitProps {
   /**
    * Listen for input value changes.
    */
@@ -22,53 +43,73 @@ export interface InputChildrenProps
 }
 
 /**
+ * Input fixed props.
+ */
+export interface InputFixedProps extends InputOmitProps {
+  /**
+   * fixed position.
+   */
+  position: 'before' | 'after';
+}
+
+/**
+ * Input inner props.
+ */
+export type InputInnerProps = InputOmitProps;
+
+/**
+ * Input container props.
+ */
+export interface InputContainerProps extends InputOmitProps {
+  /**
+   * Component unique ID.
+   */
+  id: string;
+}
+
+/**
  * Input props.
  */
-export interface InputProps {
+export interface InputProps
+  extends Omit<
+    React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> &
+      TextInputProps,
+    'prefix' | 'onChange'
+  > {
   /**
-   * Input prefix element.
+   * Prefix element.
    */
   prefix?: JSX.Element | string;
 
   /**
-   * Input suffix element.
+   * Suffix element.
    */
   suffix?: JSX.Element | string;
 
   /**
-   * Input value.
-   */
-  value?: string;
-
-  /**
-   * Input default value.
-   */
-  defaultValue?: string;
-
-  /**
-   * Whether to disable input.
-   */
-  disabled?: boolean;
-
-  /**
-   * Input is loaded or not.
+   * If it's loaded.
    */
   loading?: boolean;
 
   /**
+   * Input type.
+   */
+  inputType?: 'default' | 'error';
+
+  /**
    * Render the input prefix or suffix.
    */
-  renderFix?: (fixType: 'pre' | 'suf', element?: string | JSX.Element) => JSX.Element;
+  renderFixed?: (props: InputFixedProps, element?: string | JSX.Element) => JSX.Element;
 
   /**
    * Render the input internal container.
    */
-  renderInner?: (element?: JSX.Element) => JSX.Element;
+  renderInner?: (props: InputInnerProps, element?: JSX.Element) => JSX.Element;
 
   /**
    * Render the input container.
    */
-  renderContainer?: (id: string, element?: JSX.Element) => JSX.Element;
+  renderContainer?: (props: InputContainerProps, element?: JSX.Element) => JSX.Element;
 
   /**
    * Render the Children element.
@@ -77,7 +118,7 @@ export interface InputProps {
    * The react native environment children <TextInput />.
    */
   renderChildren?: (
-    inputChildrenProps: InputChildrenProps,
+    props: InputChildrenProps,
   ) =>
     | React.ReactElement<TextInputProps>
     | React.ReactElement<
@@ -96,28 +137,26 @@ export const Input: React.FC<InputProps> = ({
   value,
   defaultValue,
   onChange,
-  renderFix,
+  renderFixed,
   renderInner,
   renderContainer,
   renderChildren,
   ...args
 }) => {
+  const platform = getPlatform();
   const id = useId();
   const [inputValue, setInputValue] = useState('');
   const handleChange = (event: InputChangeEvent) => {
     event.preventDefault();
 
-    const text =
-      getPlatform() === 'reactNative'
-        ? (event as NativeSyntheticEvent<TextInputChangeEventData>).nativeEvent.text
-        : (event as React.ChangeEvent<HTMLInputElement>).currentTarget.value;
+    const text = platform === 'reactNative' ? event.nativeEvent.text : event.currentTarget.value;
 
     setInputValue(text);
     onChange?.(event, text);
   };
 
-  const prefixElement = prefix && renderFix?.('pre', prefix);
-  const suffixElement = suffix && renderFix?.('suf', suffix);
+  const prefixElement = prefix && renderFixed?.({position: 'before', ...args}, prefix);
+  const suffixElement = suffix && renderFixed?.({position: 'after', ...args}, suffix);
   const childrenElement = (
     <>
       {prefixElement}
@@ -126,9 +165,14 @@ export const Input: React.FC<InputProps> = ({
     </>
   );
 
-  const innerElement = renderInner ? renderInner?.(childrenElement) : <>{childrenElement}</>;
+  const innerElement = renderInner ? (
+    renderInner?.({...args}, childrenElement)
+  ) : (
+    <>{childrenElement}</>
+  );
+
   const containerElement = renderContainer ? (
-    renderContainer?.(id, innerElement)
+    renderContainer?.({id, ...args}, innerElement)
   ) : (
     <>{innerElement}</>
   );
