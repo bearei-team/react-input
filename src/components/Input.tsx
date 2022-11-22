@@ -7,7 +7,7 @@ import {
   TextInputFocusEventData,
 } from 'react-native';
 import {getPlatform} from '@bearei/react-util/lib/getPlatform';
-import {handleEvent} from '@bearei/react-util/lib/userEvent';
+import {handleEvent} from '@bearei/react-util/lib/event';
 
 export type InputChangeEvent =
   | React.ChangeEvent<HTMLInputElement>
@@ -118,9 +118,9 @@ const Input: React.FC<InputProps> = ({
   suffix,
   value,
   defaultValue,
-  onChange,
-  onFocus,
   onBlur,
+  onFocus,
+  onChange,
   renderFixed,
   renderContainer,
   renderChildren,
@@ -141,18 +141,18 @@ const Input: React.FC<InputProps> = ({
 
   const handleFocus = (e: InputFocusEvent) => onFocus?.(e);
   const handleBlur = (e: InputFocusEvent) => onBlur?.(e);
-  const prefixElement = prefix && renderFixed?.({position: 'before', ...args}, prefix);
-  const suffixElement = suffix && renderFixed?.({position: 'after', ...args}, suffix);
+  const prefixElement = prefix && renderFixed?.({...args, position: 'before'}, prefix);
+  const suffixElement = suffix && renderFixed?.({...args, position: 'after'}, suffix);
   const childrenElement = (
     <>
       {prefixElement}
       {renderChildren?.({
+        ...args,
         value: inputValue,
         defaultValue,
         onChange: handleEvent(handleChange),
         onFocus: handleEvent(handleFocus),
         onBlur: handleEvent(handleBlur),
-        ...args,
       })}
 
       {suffixElement}
@@ -160,7 +160,7 @@ const Input: React.FC<InputProps> = ({
   );
 
   const containerElement = renderContainer ? (
-    renderContainer?.({id, ...args}, childrenElement)
+    renderContainer?.({...args, id}, childrenElement)
   ) : (
     <>{childrenElement}</>
   );
