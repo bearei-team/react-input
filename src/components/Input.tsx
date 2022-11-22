@@ -113,7 +113,7 @@ export interface InputProps
   onBlur?: (e: InputFocusEvent) => void;
 }
 
-export const Input: React.FC<InputProps> = ({
+const Input: React.FC<InputProps> = ({
   prefix,
   suffix,
   value,
@@ -173,3 +173,5 @@ export const Input: React.FC<InputProps> = ({
 
   return <>{containerElement}</>;
 };
+
+export default Input;

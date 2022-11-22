@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import {render} from '../utils/testUtils';
-import {Input, InputChangeEvent} from '../../src/components/Input';
+import Input, {InputChangeEvent} from '../../src/components/Input';
 import React, {useEffect, useState} from 'react';
 import {fireEvent} from '@testing-library/react';
 
