@@ -11,7 +11,7 @@ interface CustomInputProps {
 
 const CustomInput: React.FC<CustomInputProps> = ({value, onChange}) => {
   const [inputValue, setInputValue] = useState('');
-  const handleChange = (event: InputChangeEvent) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.preventDefault();
 
     const inputtedValue = event.currentTarget.value;
@@ -51,18 +51,14 @@ describe('test/components/Input.test.ts', () => {
             {element}
           </div>
         )}
-        renderInner={(_props, element) => (
-          <div data-cy="inner" tabIndex={1}>
-            {element}
-          </div>
-        )}
         renderFixed={({position}, element) => <span data-cy={`${position}`}>{element}</span>}
-        renderChildren={props => <input data-cy="input" {...props} />}
+        renderChildren={({inputType, ...props}) => (
+          <input data-cy="input" input-type={inputType} {...props} />
+        )}
       />,
     );
 
     expect(getByDataCy('container')).toHaveAttribute('tabIndex');
-    expect(getByDataCy('inner')).toHaveAttribute('tabIndex');
     expect(getByDataCy('before')).toHaveTextContent('before');
     expect(getByDataCy('after')).toHaveTextContent('after');
     expect(getByDataCy('input')).toHaveAttribute('value');

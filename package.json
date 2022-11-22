@@ -1,6 +1,6 @@
 {
   "name": "@bearei/react-input",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "module": "./lib-esm/index.js",
@@ -22,7 +22,7 @@
     "url": "https://github.com/bear-ei/react-input/issues"
   },
   "dependencies": {
-    "@bearei/react-util": "^0.0.10",
+    "@bearei/react-util": "^0.0.11",
     "react": "^18.2.0"
   },
   "devDependencies": {
