@@ -22,11 +22,6 @@ const input = (
         {element}
       </div>
     )}
-    renderInner={(_props, element) => (
-      <div data-cy="inner" tabIndex={1}>
-        {element}
-      </div>
-    )}
     renderFixed={({position}, element) => <span data-cy={`${position}`}>{element}</span>}
     renderChildren={props => <input data-cy="input" {...props} />}
   />

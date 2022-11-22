@@ -7,115 +7,93 @@ import {
   TextInputFocusEventData,
 } from 'react-native';
 import {getPlatform} from '@bearei/react-util/lib/getPlatform';
+import {handleEvent} from '@bearei/react-util/lib/userEvent';
 
-/**
- * Input change event.
- */
-export type InputChangeEvent = React.ChangeEvent<HTMLInputElement> &
-  NativeSyntheticEvent<TextInputChangeEventData>;
+export type InputChangeEvent =
+  | React.ChangeEvent<HTMLInputElement>
+  | NativeSyntheticEvent<TextInputChangeEventData>;
 
-/**
- * Input change event.
- */
 export type InputFocusEvent =
   | React.FocusEvent<HTMLInputElement, Element>
   | NativeSyntheticEvent<TextInputFocusEventData>;
 
-export type InputOmitProps = Omit<
-  InputProps,
-  | 'renderFixed'
-  | 'renderInner'
-  | 'renderContainer'
-  | 'renderChildren'
-  | 'prefix'
-  | 'suffix'
-  | 'onChange'
->;
-
-/**
- * Input children element props.
- */
-export interface InputChildrenProps extends InputOmitProps {
+export interface InputOmitProps
+  extends Omit<
+    InputProps,
+    'renderFixed' | 'renderContainer' | 'renderChildren' | 'prefix' | 'suffix' | 'onChange'
+  > {
   /**
-   * Listen for input value changes.
+   * Current text box type.
    */
-  onChange?: (event: InputChangeEvent) => void;
+  inputType?: 'default' | 'error';
 }
 
 /**
- * Input fixed props.
+ * Text box children props.
+ */
+export interface InputChildrenProps extends InputOmitProps {
+  /**
+   * This callback function is called when the text box content changes.
+   */
+  onChange?: (e: InputChangeEvent) => void;
+}
+
+/**
+ * Text box prefix or suffix props.
  */
 export interface InputFixedProps extends InputOmitProps {
   /**
-   * fixed position.
+   * The text box holds the component position.
    */
   position: 'before' | 'after';
 }
 
 /**
- * Input inner props.
- */
-export type InputInnerProps = InputOmitProps;
-
-/**
- * Input container props.
+ * Text box container props.
  */
 export interface InputContainerProps extends InputOmitProps {
   /**
-   * Component unique ID.
+   * The unique ID of the text box component.
    */
   id: string;
 }
 
 /**
- * Input props.
+ * Text box props.
  */
 export interface InputProps
   extends Omit<
-    React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> &
-      TextInputProps,
-    'prefix' | 'onChange'
+    | React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> &
+        TextInputProps,
+    'prefix' | 'onChange' | 'ref' | 'onFocus' | 'onBlur'
   > {
   /**
-   * Prefix element.
+   * Text box prefix.
    */
-  prefix?: JSX.Element | string;
+  prefix?: React.ReactNode;
 
   /**
-   * Suffix element.
+   * Text box suffix.
    */
-  suffix?: JSX.Element | string;
+  suffix?: React.ReactNode;
 
   /**
-   * If it's loaded.
+   * Whether the text box is loading.
    */
   loading?: boolean;
 
   /**
-   * Input type.
+   * Render text box prefix or suffix.
    */
-  inputType?: 'default' | 'error';
+  renderFixed?: (props: InputFixedProps, element?: React.ReactNode) => React.ReactNode;
 
   /**
-   * Render the input prefix or suffix.
+   * Render text box container.
    */
-  renderFixed?: (props: InputFixedProps, element?: string | JSX.Element) => JSX.Element;
+  renderContainer?: (props: InputContainerProps, element?: React.ReactNode) => React.ReactNode;
 
   /**
-   * Render the input internal container.
-   */
-  renderInner?: (props: InputInnerProps, element?: JSX.Element) => JSX.Element;
-
-  /**
-   * Render the input container.
-   */
-  renderContainer?: (props: InputContainerProps, element?: JSX.Element) => JSX.Element;
-
-  /**
-   * Render the Children element.
-   *
-   * The browser environment children <input />.
-   * The react native environment children <TextInput />.
+   * Render text box children.
    */
   renderChildren?: (
     props: InputChildrenProps,
@@ -126,9 +104,19 @@ export interface InputProps
       >;
 
   /**
-   * Listen for input value changes.
+   * This callback function is called when the text box content changes.
    */
-  onChange?: (event: InputChangeEvent, value?: string) => void;
+  onChange?: (e: InputChangeEvent, value?: string) => void;
+
+  /**
+   * This callback function is called when the text box gets the focus.
+   */
+  onFocus?: (e: InputFocusEvent) => void;
+
+  /**
+   * This callback function is called when the text box loses focus.
+   */
+  onBlur?: (e: InputFocusEvent) => void;
 }
 
 export const Input: React.FC<InputProps> = ({
@@ -137,50 +125,66 @@ export const Input: React.FC<InputProps> = ({
   value,
   defaultValue,
   onChange,
+  onFocus,
+  onBlur,
   renderFixed,
-  renderInner,
   renderContainer,
   renderChildren,
   ...args
 }) => {
-  const platform = getPlatform();
   const id = useId();
+  const platform = getPlatform();
   const [inputValue, setInputValue] = useState('');
-  const handleChange = (event: InputChangeEvent) => {
-    event.preventDefault();
-
-    const text = platform === 'reactNative' ? event.nativeEvent.text : event.currentTarget.value;
+  const [inputType, setInputType] = useState<InputOmitProps['inputType']>('default');
+  const omitProps = {inputType, ...args};
+  const handleChange = (e: InputChangeEvent) => {
+    const text =
+      platform === 'reactNative'
+        ? (e as NativeSyntheticEvent<TextInputChangeEventData>).nativeEvent.text
+        : (e as React.ChangeEvent<HTMLInputElement>).currentTarget.value;
 
     setInputValue(text);
-    onChange?.(event, text);
+    onChange?.(e, text);
   };
 
-  const prefixElement = prefix && renderFixed?.({position: 'before', ...args}, prefix);
-  const suffixElement = suffix && renderFixed?.({position: 'after', ...args}, suffix);
+  const handleFocus = (e: InputFocusEvent) => {
+    setInputType('default');
+    onFocus?.(e);
+  };
+
+  const handleBlur = (e: InputFocusEvent) => {
+    e.preventDefault();
+    onBlur?.(e);
+  };
+
+  const prefixElement = prefix && renderFixed?.({position: 'before', ...omitProps}, prefix);
+  const suffixElement = suffix && renderFixed?.({position: 'after', ...omitProps}, suffix);
   const childrenElement = (
     <>
       {prefixElement}
-      {renderChildren?.({value: inputValue, defaultValue, onChange: handleChange, ...args})}
+      {renderChildren?.({
+        value: inputValue,
+        defaultValue,
+        onChange: handleEvent(handleChange),
+        onFocus: handleEvent(handleFocus),
+        onBlur: handleEvent(handleBlur),
+        ...omitProps,
+      })}
+
       {suffixElement}
     </>
   );
 
-  const innerElement = renderInner ? (
-    renderInner?.({...args}, childrenElement)
+  const containerElement = renderContainer ? (
+    renderContainer?.({id, ...omitProps}, childrenElement)
   ) : (
     <>{childrenElement}</>
   );
 
-  const containerElement = renderContainer ? (
-    renderContainer?.({id, ...args}, innerElement)
-  ) : (
-    <>{innerElement}</>
-  );
-
   useEffect(() => {
-    const nextValue = defaultValue ? defaultValue : value;
+    const nextValue = defaultValue ?? value;
 
-    nextValue && setInputValue(nextValue);
+    nextValue && setInputValue(nextValue.toString());
   }, [value, defaultValue]);
 
   return <>{containerElement}</>;
