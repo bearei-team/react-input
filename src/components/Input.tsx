@@ -17,16 +17,10 @@ export type InputFocusEvent =
   | React.FocusEvent<HTMLInputElement, Element>
   | NativeSyntheticEvent<TextInputFocusEventData>;
 
-export interface InputOmitProps
-  extends Omit<
-    InputProps,
-    'renderFixed' | 'renderContainer' | 'renderChildren' | 'prefix' | 'suffix' | 'onChange'
-  > {
-  /**
-   * Current text box type.
-   */
-  inputType?: 'default' | 'error';
-}
+export type InputOmitProps = Omit<
+  InputProps,
+  'renderFixed' | 'renderContainer' | 'renderChildren' | 'prefix' | 'suffix' | 'onChange'
+>;
 
 /**
  * Text box children props.
@@ -135,8 +129,6 @@ export const Input: React.FC<InputProps> = ({
   const id = useId();
   const platform = getPlatform();
   const [inputValue, setInputValue] = useState('');
-  const [inputType, setInputType] = useState<InputOmitProps['inputType']>('default');
-  const omitProps = {inputType, ...args};
   const handleChange = (e: InputChangeEvent) => {
     const text =
       platform === 'reactNative'
@@ -147,18 +139,10 @@ export const Input: React.FC<InputProps> = ({
     onChange?.(e, text);
   };
 
-  const handleFocus = (e: InputFocusEvent) => {
-    setInputType('default');
-    onFocus?.(e);
-  };
-
-  const handleBlur = (e: InputFocusEvent) => {
-    e.preventDefault();
-    onBlur?.(e);
-  };
-
-  const prefixElement = prefix && renderFixed?.({position: 'before', ...omitProps}, prefix);
-  const suffixElement = suffix && renderFixed?.({position: 'after', ...omitProps}, suffix);
+  const handleFocus = (e: InputFocusEvent) => onFocus?.(e);
+  const handleBlur = (e: InputFocusEvent) => onBlur?.(e);
+  const prefixElement = prefix && renderFixed?.({position: 'before', ...args}, prefix);
+  const suffixElement = suffix && renderFixed?.({position: 'after', ...args}, suffix);
   const childrenElement = (
     <>
       {prefixElement}
@@ -168,7 +152,7 @@ export const Input: React.FC<InputProps> = ({
         onChange: handleEvent(handleChange),
         onFocus: handleEvent(handleFocus),
         onBlur: handleEvent(handleBlur),
-        ...omitProps,
+        ...args,
       })}
 
       {suffixElement}
@@ -176,7 +160,7 @@ export const Input: React.FC<InputProps> = ({
   );
 
   const containerElement = renderContainer ? (
-    renderContainer?.({id, ...omitProps}, childrenElement)
+    renderContainer?.({id, ...args}, childrenElement)
   ) : (
     <>{childrenElement}</>
   );
