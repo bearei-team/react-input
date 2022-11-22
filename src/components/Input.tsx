@@ -150,9 +150,9 @@ const Input: React.FC<InputProps> = ({
         ...args,
         value: inputValue,
         defaultValue,
-        onChange: handleEvent(handleChange),
-        onFocus: handleEvent(handleFocus),
-        onBlur: handleEvent(handleBlur),
+        ...(onChange ? {onChange: handleEvent(handleChange)} : undefined),
+        ...(onFocus ? {onFocus: handleEvent(handleFocus)} : undefined),
+        ...(onBlur ? {onBlur: handleEvent(handleBlur)} : undefined),
       })}
 
       {suffixElement}
