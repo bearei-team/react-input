@@ -1,6 +1,6 @@
 {
   "name": "@bearei/react-input",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "module": "./lib-esm/index.js",
@@ -16,13 +16,13 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/bear-ei/react-input"
+    "url": "https://github.com/bearei-team/react-input"
   },
   "bugs": {
-    "url": "https://github.com/bear-ei/react-input/issues"
+    "url": "https://github.com/bearei-team/react-input/issues"
   },
   "dependencies": {
-    "@bearei/react-util": "^0.0.12",
+    "@bearei/react-util": "^0.0.13",
     "react": "^18.2.0"
   },
   "devDependencies": {
