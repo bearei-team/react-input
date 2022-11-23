@@ -7,7 +7,7 @@ import {
   TextInputFocusEventData,
 } from 'react-native';
 import {getPlatform} from '@bearei/react-util/lib/getPlatform';
-import {handleEvent} from '@bearei/react-util/lib/userEvent';
+import {handleEvent} from '@bearei/react-util/lib/event';
 
 export type InputChangeEvent =
   | React.ChangeEvent<HTMLInputElement>
@@ -17,16 +17,10 @@ export type InputFocusEvent =
   | React.FocusEvent<HTMLInputElement, Element>
   | NativeSyntheticEvent<TextInputFocusEventData>;
 
-export interface InputOmitProps
-  extends Omit<
-    InputProps,
-    'renderFixed' | 'renderContainer' | 'renderChildren' | 'prefix' | 'suffix' | 'onChange'
-  > {
-  /**
-   * Current text box type.
-   */
-  inputType?: 'default' | 'error';
-}
+export type InputOmitProps = Omit<
+  InputProps,
+  'renderFixed' | 'renderContainer' | 'renderChildren' | 'prefix' | 'suffix' | 'onChange'
+>;
 
 /**
  * Text box children props.
@@ -119,14 +113,14 @@ export interface InputProps
   onBlur?: (e: InputFocusEvent) => void;
 }
 
-export const Input: React.FC<InputProps> = ({
+const Input: React.FC<InputProps> = ({
   prefix,
   suffix,
   value,
   defaultValue,
-  onChange,
-  onFocus,
   onBlur,
+  onFocus,
+  onChange,
   renderFixed,
   renderContainer,
   renderChildren,
@@ -135,8 +129,6 @@ export const Input: React.FC<InputProps> = ({
   const id = useId();
   const platform = getPlatform();
   const [inputValue, setInputValue] = useState('');
-  const [inputType, setInputType] = useState<InputOmitProps['inputType']>('default');
-  const omitProps = {inputType, ...args};
   const handleChange = (e: InputChangeEvent) => {
     const text =
       platform === 'reactNative'
@@ -147,28 +139,20 @@ export const Input: React.FC<InputProps> = ({
     onChange?.(e, text);
   };
 
-  const handleFocus = (e: InputFocusEvent) => {
-    setInputType('default');
-    onFocus?.(e);
-  };
-
-  const handleBlur = (e: InputFocusEvent) => {
-    e.preventDefault();
-    onBlur?.(e);
-  };
-
-  const prefixElement = prefix && renderFixed?.({position: 'before', ...omitProps}, prefix);
-  const suffixElement = suffix && renderFixed?.({position: 'after', ...omitProps}, suffix);
+  const handleFocus = (e: InputFocusEvent) => onFocus?.(e);
+  const handleBlur = (e: InputFocusEvent) => onBlur?.(e);
+  const prefixElement = prefix && renderFixed?.({...args, position: 'before'}, prefix);
+  const suffixElement = suffix && renderFixed?.({...args, position: 'after'}, suffix);
   const childrenElement = (
     <>
       {prefixElement}
       {renderChildren?.({
+        ...args,
         value: inputValue,
         defaultValue,
-        onChange: handleEvent(handleChange),
-        onFocus: handleEvent(handleFocus),
-        onBlur: handleEvent(handleBlur),
-        ...omitProps,
+        ...(onChange ? {onChange: handleEvent(handleChange)} : undefined),
+        ...(onFocus ? {onFocus: handleEvent(handleFocus)} : undefined),
+        ...(onBlur ? {onBlur: handleEvent(handleBlur)} : undefined),
       })}
 
       {suffixElement}
@@ -176,7 +160,7 @@ export const Input: React.FC<InputProps> = ({
   );
 
   const containerElement = renderContainer ? (
-    renderContainer?.({id, ...omitProps}, childrenElement)
+    renderContainer?.({...args, id}, childrenElement)
   ) : (
     <>{childrenElement}</>
   );
@@ -189,3 +173,5 @@ export const Input: React.FC<InputProps> = ({
 
   return <>{containerElement}</>;
 };
+
+export default Input;

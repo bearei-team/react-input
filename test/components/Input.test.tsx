@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import {render} from '../utils/testUtils';
-import {Input, InputChangeEvent} from '../../src/components/Input';
+import Input, {InputChangeEvent} from '../../src/components/Input';
 import React, {useEffect, useState} from 'react';
 import {fireEvent} from '@testing-library/react';
 
@@ -52,9 +52,7 @@ describe('test/components/Input.test.ts', () => {
           </div>
         )}
         renderFixed={({position}, element) => <span data-cy={`${position}`}>{element}</span>}
-        renderChildren={({inputType, ...props}) => (
-          <input data-cy="input" input-type={inputType} {...props} />
-        )}
+        renderChildren={props => <input {...props} data-cy="input" />}
       />,
     );
 
