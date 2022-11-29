@@ -133,7 +133,7 @@ export interface InputProps<T, E> extends BaseInputProps<T, E> {
 export interface InputChildrenProps<T, E>
   extends Omit<BaseInputProps<T, E>, 'prefix' | 'suffix' | 'afterLabel' | 'beforeLabel'> {
   /**
-   * The unique ID of the component
+   * Component unique ID
    */
   id: string;
   children?: ReactNode;
@@ -190,12 +190,12 @@ function Input<T, E = InputChangeEvent<T>>({
   );
 
   const handleChange = (e: E) => {
-    const text =
+    const value =
       platform === 'reactNative'
         ? (e as NativeSyntheticEvent<TextInputChangeEventData>).nativeEvent.text
         : (e as ChangeEvent<HTMLInputElement>).currentTarget.value;
 
-    const options = {event: e, text};
+    const options = {event: e, value};
 
     setInputOptions(options);
     handleInputOptionsChange(options);
@@ -241,7 +241,9 @@ function Input<T, E = InputChangeEvent<T>>({
         ref,
         value: inputOptions.value,
         defaultValue,
-        onChange: handleEvent(handleChange as (e: InputChangeEvent<T>) => void),
+        ...(onChange
+          ? {onChange: handleEvent(handleChange as (e: InputChangeEvent<T>) => void)}
+          : undefined),
         ...(onFocus ? {onFocus: handleEvent(handleFocus)} : undefined),
         ...(onBlur ? {onBlur: handleEvent(handleBlur)} : undefined),
       })}
