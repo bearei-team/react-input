@@ -1519,7 +1519,7 @@ __metadata:
     "@babel/core": ^7.20.2
     "@babel/preset-env": ^7.20.2
     "@babel/preset-react": ^7.18.6
-    "@bearei/react-util": ^0.0.13
+    "@bearei/react-util": ^0.0.15
     "@testing-library/dom": ^8.19.0
     "@testing-library/jest-dom": ^5.16.5
     "@testing-library/react": ^13.4.0
@@ -1562,12 +1562,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@bearei/react-util@npm:^0.0.13":
-  version: 0.0.13
-  resolution: "@bearei/react-util@npm:0.0.13"
+"@bearei/react-util@npm:^0.0.15":
+  version: 0.0.15
+  resolution: "@bearei/react-util@npm:0.0.15"
   dependencies:
     react: ^18.2.0
-  checksum: 915a8dda8dd6533a5590b2051e00d49c07e7bff89690563f243745544efdf6af4c1186fa97c35060ea7f2593ee9ae14902c7c14c287c5927736fb30a0e3bc0f0
+  checksum: 17701971503a42ab0996624d0f488bfbc38fc8bf7ad12237d7c70c1d5c263609ac5fd35b6bb64ad2afc9654b132e75ac633f85e292bd4b466c6af30a75fa79a3
   languageName: node
   linkType: hard
 
@@ -5922,7 +5922,7 @@ __metadata:
 
 "fsevents@patch:fsevents@^2.1.2#~builtin<compat/fsevents>, fsevents@patch:fsevents@^2.3.2#~builtin<compat/fsevents>, fsevents@patch:fsevents@~2.3.2#~builtin<compat/fsevents>":
   version: 2.3.2
-  resolution: "fsevents@patch:fsevents@npm%3A2.3.2%3A%3A__archiveUrl=https%253A%252F%252Fregistry.npmmirror.com%252Ffsevents%252F-%252Ffsevents-2.3.2.tgz#~builtin<compat/fsevents>::version=2.3.2&hash=18f3a7"
+  resolution: "fsevents@patch:fsevents@npm%3A2.3.2%3A%3A__archiveUrl=https%253A%252F%252Fregistry.npmmirror.com%252Ffsevents%252F-%252Ffsevents-2.3.2.tgz#~builtin<compat/fsevents>::version=2.3.2&hash=df0bf1"
   dependencies:
     node-gyp: latest
   conditions: os=darwin
@@ -10061,7 +10061,7 @@ __metadata:
 
 "resolve@patch:resolve@^1.1.6#~builtin<compat/resolve>, resolve@patch:resolve@^1.10.1#~builtin<compat/resolve>, resolve@patch:resolve@^1.14.2#~builtin<compat/resolve>, resolve@patch:resolve@^1.20.0#~builtin<compat/resolve>, resolve@patch:resolve@^1.9.0#~builtin<compat/resolve>":
   version: 1.22.1
-  resolution: "resolve@patch:resolve@npm%3A1.22.1%3A%3A__archiveUrl=https%253A%252F%252Fregistry.npmmirror.com%252Fresolve%252F-%252Fresolve-1.22.1.tgz#~builtin<compat/resolve>::version=1.22.1&hash=07638b"
+  resolution: "resolve@patch:resolve@npm%3A1.22.1%3A%3A__archiveUrl=https%253A%252F%252Fregistry.npmmirror.com%252Fresolve%252F-%252Fresolve-1.22.1.tgz#~builtin<compat/resolve>::version=1.22.1&hash=c3c19d"
   dependencies:
     is-core-module: ^2.9.0
     path-parse: ^1.0.7
@@ -10074,7 +10074,7 @@ __metadata:
 
 "resolve@patch:resolve@^2.0.0-next.3#~builtin<compat/resolve>":
   version: 2.0.0-next.4
-  resolution: "resolve@patch:resolve@npm%3A2.0.0-next.4%3A%3A__archiveUrl=https%253A%252F%252Fregistry.npmmirror.com%252Fresolve%252F-%252Fresolve-2.0.0-next.4.tgz#~builtin<compat/resolve>::version=2.0.0-next.4&hash=07638b"
+  resolution: "resolve@patch:resolve@npm%3A2.0.0-next.4%3A%3A__archiveUrl=https%253A%252F%252Fregistry.npmmirror.com%252Fresolve%252F-%252Fresolve-2.0.0-next.4.tgz#~builtin<compat/resolve>::version=2.0.0-next.4&hash=c3c19d"
   dependencies:
     is-core-module: ^2.9.0
     path-parse: ^1.0.7
@@ -11344,7 +11344,7 @@ __metadata:
 
 "typescript@patch:typescript@^4.8.4#~builtin<compat/typescript>":
   version: 4.8.4
-  resolution: "typescript@patch:typescript@npm%3A4.8.4%3A%3A__archiveUrl=https%253A%252F%252Fregistry.npmmirror.com%252Ftypescript%252F-%252Ftypescript-4.8.4.tgz#~builtin<compat/typescript>::version=4.8.4&hash=701156"
+  resolution: "typescript@patch:typescript@npm%3A4.8.4%3A%3A__archiveUrl=https%253A%252F%252Fregistry.npmmirror.com%252Ftypescript%252F-%252Ftypescript-4.8.4.tgz#~builtin<compat/typescript>::version=4.8.4&hash=0102e9"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver

@@ -3,9 +3,10 @@ import {render} from '../utils/testUtils';
 import Input, {InputChangeEvent} from '../../src/components/Input';
 import React, {useEffect, useState} from 'react';
 import {fireEvent} from '@testing-library/react';
+import {pickHTMLAttributes} from '@bearei/react-util';
 
 interface CustomInputProps {
-  onChange?: (event: InputChangeEvent, value?: string) => void;
+  onChange?: (event: InputChangeEvent<HTMLInputElement>, value?: string) => void;
   value?: string;
 }
 
@@ -29,9 +30,13 @@ const CustomInput: React.FC<CustomInputProps> = ({value, onChange}) => {
 
 const setup = () => {
   const utils = render(
-    <Input renderMain={props => <CustomInput {...props} />} onChange={(event, value) => {}} />,
+    <Input
+      onFocus={() => undefined}
+      onBlur={() => undefined}
+      defaultValue="1"
+      renderMain={props => <CustomInput {...props} />}
+    />,
   );
-
   const input = utils.getByLabelText('custom-input') as HTMLInputElement;
 
   return {
@@ -43,21 +48,25 @@ const setup = () => {
 describe('test/components/Input.test.ts', () => {
   test('It should be a render input', async () => {
     const {getByDataCy} = render(
-      <Input
+      <Input<HTMLInputElement>
         prefix="before"
         suffix="after"
         afterLabel="after"
         beforeLabel="before"
         onChange={() => {}}
-        renderContainer={({id}, element) => (
+        renderContainer={({id, children}) => (
           <div data-cy="container" id={id} tabIndex={1}>
-            {element}
+            {children}
           </div>
         )}
-        renderLabel={({position}, element) => <span data-cy={`label-${position}`}>{element}</span>}
-        renderFixed={({position}, element) => <span data-cy={`fixed-${position}`}>{element}</span>}
-        renderMain={({size, id, handleEvent, ...props}) => (
-          <input {...props} data-cy="input" data-id={id} />
+        renderLabel={({position, children}) => (
+          <span data-cy={`label-${position}`}>{children}</span>
+        )}
+        renderFixed={({position, children}) => (
+          <span data-cy={`fixed-${position}`}>{children}</span>
+        )}
+        renderMain={({id, ...props}) => (
+          <input {...pickHTMLAttributes(props)} data-cy="input" data-id={id} />
         )}
       />,
     );
@@ -76,6 +85,9 @@ describe('test/components/Input.test.ts', () => {
     expect(input).toHaveAttribute('value');
 
     fireEvent.change(input, {target: {value: '17'}});
+
+    fireEvent.focus(input);
+    fireEvent.blur(input);
 
     expect(input.value).toBe('17');
   });

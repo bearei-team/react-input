@@ -5,7 +5,7 @@
   "types": "./lib/index.d.ts",
   "module": "./lib-esm/index.js",
   "author": "bearei <bear_ei@outlook.com>",
-  "description": "A basic input component that supports react and native react.",
+  "description": "Base input components that support React and React native",
   "license": "MIT",
   "readmeFilename": "README.md",
   "keywords": [
@@ -22,7 +22,7 @@
     "url": "https://github.com/bearei-team/react-input/issues"
   },
   "dependencies": {
-    "@bearei/react-util": "^0.0.13",
+    "@bearei/react-util": "^0.0.15",
     "react": "^18.2.0"
   },
   "devDependencies": {
@@ -92,5 +92,5 @@
   "engines": {
     "node": ">=16.0.0"
   },
-  "packageManager": "yarn@3.2.4"
+  "packageManager": "yarn@3.3.0"
 }
