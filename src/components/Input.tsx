@@ -1,60 +1,79 @@
-import * as React from 'react';
-import {useState, useEffect, useId} from 'react';
-import {
+import {useState, useEffect, useId, useCallback} from 'react';
+import type {
+  Ref,
+  DetailedHTMLProps,
+  InputHTMLAttributes,
+  ReactNode,
+  ChangeEvent,
+  FocusEvent,
+} from 'react';
+import type {
   NativeSyntheticEvent,
   TextInputChangeEventData,
   TextInputProps,
   TextInputFocusEventData,
 } from 'react-native';
-import {getPlatform} from '@bearei/react-util/lib/platform';
-import {handleEvent} from '@bearei/react-util/lib/event';
+import handleEvent from '@bearei/react-util/lib/event';
+import platformInfo from '@bearei/react-util/lib/platform';
+import type {HandleEvent} from '@bearei/react-util/lib/event';
 
 /**
- * Input box props
+ * Input box options
  */
-export interface InputProps
-  extends Omit<
-    | React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> &
-        TextInputProps,
-    'prefix' | 'onChange' | 'onFocus' | 'onBlur' | 'size'
-  > {
+export interface InputOptions<E> {
   /**
-   * An input box with a prefix label
-   */
-  afterLabel?: React.ReactNode;
-
-  /**
-   * An input box with a suffix label
-   */
-  beforeLabel?: React.ReactNode;
-
-  /**
-   * An input box with a prefix
-   */
-  prefix?: React.ReactNode;
-
-  /**
-   * An input box with a suffix
-   */
-  suffix?: React.ReactNode;
-
-  /**
-   * Set the value of the input box
+   * Input box values.
    */
   value?: string;
 
   /**
-   * Set the default value for the input box
+   * That triggers a change in the value of the input field
+   */
+  event?: E;
+}
+
+export interface BaseInputProps<T, E>
+  extends Omit<
+    DetailedHTMLProps<InputHTMLAttributes<T>, T> & TextInputProps & Pick<InputOptions<E>, 'value'>,
+    'prefix' | 'onChange' | 'onFocus' | 'onBlur' | 'size'
+  > {
+  /**
+   * Custom ref
+   */
+  ref?: Ref<T>;
+
+  /**
+   * The label at the back of the input box
+   */
+  afterLabel?: ReactNode;
+
+  /**
+   * The label in front of the input box
+   */
+  beforeLabel?: ReactNode;
+
+  /**
+   * Input box prefix
+   */
+  prefix?: ReactNode;
+
+  /**
+   * Input box suffix
+   */
+  suffix?: ReactNode;
+
+  /**
+   * Default values for input box
    */
   defaultValue?: string;
 
   /**
-   * Whether or not to disable the input box
+   * Whether to disable input box
    */
   disabled?: boolean;
 
   /**
-   * Whether the button is loading
+   * Whether the input box is loading
    */
   loading?: boolean;
 
@@ -69,99 +88,81 @@ export interface InputProps
   shape?: 'square' | 'circle' | 'round';
 
   /**
-   * Sets the input box validation status
+   * Set the input box status
    */
   status?: 'normal' | 'error' | 'warning';
 
   /**
-   * Renders the input box prefix label or suffix label
+   * This function is called when the input field value changes
    */
-  renderLabel?: (props: InputLabelProps, element?: React.ReactNode) => React.ReactNode;
+  onChange?: (options: InputOptions<E>) => void;
 
   /**
-   * Render input box prefix or suffix
+   * This function is called when the input box gets the focus
    */
-  renderFixed?: (props: InputFixedProps, element?: React.ReactNode) => React.ReactNode;
+  onFocus?: (e: InputFocusEvent<T>) => void;
 
   /**
-   * Render the input box container
+   * This function is called when the input field loses focus
    */
-  renderContainer?: (props: InputContainerProps, element?: React.ReactNode) => React.ReactNode;
+  onBlur?: (e: InputFocusEvent<T>) => void;
+}
+
+export interface InputProps<T, E> extends BaseInputProps<T, E> {
+  /**
+   * Render the input box label
+   */
+  renderLabel?: (props: InputLabelProps<T, E>) => ReactNode;
+
+  /**
+   * Render the input box fixed
+   */
+  renderFixed?: (props: InputFixedProps<T, E>) => ReactNode;
 
   /**
    * Render the input box main
    */
-  renderMain?: (
-    props: InputMainProps,
-  ) =>
-    | React.ReactElement<TextInputProps>
-    | React.ReactElement<
-        React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>
-      >;
+  renderMain?: (props: InputMainProps<T, E>) => ReactNode;
 
   /**
-   * A callback when the contents of an input box change
+   * Render the input box container
    */
-  onChange?: (e: InputChangeEvent, value?: string) => void;
-
-  /**
-   * The callback when the input box gets focus
-   */
-  onFocus?: (e: InputFocusEvent) => void;
-
-  /**
-   * Callback when the input box loses focus
-   */
-  onBlur?: (e: InputFocusEvent) => void;
+  renderContainer?: (props: InputContainerProps<T, E>) => ReactNode;
 }
 
-/**
- * Input box props
- */
-export interface InputChildrenProps
-  extends Omit<
-    InputProps,
-    | 'renderFixed'
-    | 'renderContainer'
-    | 'renderMain'
-    | 'renderLabel'
-    | 'prefix'
-    | 'suffix'
-    | 'afterLabel'
-    | 'beforeLabel'
-  > {
+export interface InputChildrenProps<T, E>
+  extends Omit<BaseInputProps<T, E>, 'prefix' | 'suffix' | 'afterLabel' | 'beforeLabel'> {
   /**
-   * Unique ID of card component
+   * The unique ID of the component
    */
   id: string;
+  children?: ReactNode;
 
   /**
    * Used to handle some common default events
    */
-  handleEvent: typeof handleEvent;
+  handleEvent: HandleEvent;
 }
 
-export type InputChangeEvent =
-  | React.ChangeEvent<HTMLInputElement>
-  | NativeSyntheticEvent<TextInputChangeEventData>;
-
-export type InputFocusEvent =
-  | React.FocusEvent<HTMLInputElement, Element>
+export type InputChangeEvent<T> = ChangeEvent<T> | NativeSyntheticEvent<TextInputChangeEventData>;
+export type InputFocusEvent<T> =
+  | FocusEvent<T, Element>
   | NativeSyntheticEvent<TextInputFocusEventData>;
 
-export type InputMainProps = Pick<InputProps, 'ref'> & InputChildrenProps;
-export type InputContainerProps = InputChildrenProps;
+export interface InputMainProps<T, E>
+  extends Omit<InputChildrenProps<T, E> & Pick<BaseInputProps<T, E>, 'ref'>, 'onChange'> {
+  onChange?: (e: InputChangeEvent<T>, value?: string) => void;
+}
 
-export interface InputFixedProps extends InputChildrenProps {
-  /**
-   * The position of the prefix or suffix of an input box
-   */
+export type InputContainerProps<T, E> = InputChildrenProps<T, E>;
+
+export interface InputFixedProps<T, E> extends InputChildrenProps<T, E> {
   position: 'before' | 'after';
 }
 
-export type InputLabelProps = InputFixedProps;
+export type InputLabelProps<T, E> = InputFixedProps<T, E>;
 
-const Input: React.FC<InputProps> = ({
+function Input<T, E = InputChangeEvent<T>>({
   ref,
   prefix,
   suffix,
@@ -177,69 +178,82 @@ const Input: React.FC<InputProps> = ({
   renderContainer,
   renderMain,
   ...args
-}) => {
+}: InputProps<T, E>) {
   const id = useId();
+  const [status, setStatus] = useState('idle');
+  const [inputOptions, setInputOptions] = useState<InputOptions<E>>({value: ''});
+  const platform = platformInfo();
   const childrenProps = {...args, id, handleEvent};
-  const platform = getPlatform();
-  const [inputValue, setInputValue] = useState('');
-  const handleChange = (e: InputChangeEvent) => {
+  const handleInputOptionsChange = useCallback(
+    (options: InputOptions<E>) => onChange?.(options),
+    [onChange],
+  );
+
+  const handleChange = (e: E) => {
     const text =
       platform === 'reactNative'
         ? (e as NativeSyntheticEvent<TextInputChangeEventData>).nativeEvent.text
-        : (e as React.ChangeEvent<HTMLInputElement>).currentTarget.value;
+        : (e as ChangeEvent<HTMLInputElement>).currentTarget.value;
 
-    setInputValue(text);
-    onChange?.(e, text);
+    const options = {event: e, text};
+
+    setInputOptions(options);
+    handleInputOptionsChange(options);
   };
 
-  const handleFocus = (e: InputFocusEvent) => onFocus?.(e);
-  const handleBlur = (e: InputFocusEvent) => onBlur?.(e);
-  const prefixElement = (
-    <>{prefix && renderFixed?.({...childrenProps, position: 'before'}, prefix)}</>
-  );
+  const handleFocus = (e: InputFocusEvent<T>) => onFocus?.(e);
+  const handleBlur = (e: InputFocusEvent<T>) => onBlur?.(e);
 
-  const suffixElement = (
-    <>{suffix && renderFixed?.({...childrenProps, position: 'after'}, suffix)}</>
-  );
+  useEffect(() => {
+    const nextValue = status !== 'idle' ? value : defaultValue ?? value;
+    const update = typeof nextValue === 'string';
 
-  const beforeLabelElement = (
-    <>{beforeLabel && renderLabel?.({...childrenProps, position: 'before'}, beforeLabel)}</>
-  );
+    update &&
+      setInputOptions(currentOptions => {
+        const change = currentOptions.value !== nextValue && status === 'succeeded';
 
-  const afterLabelElement = (
-    <>{afterLabel && renderLabel?.({...childrenProps, position: 'after'}, afterLabel)}</>
-  );
+        change && handleInputOptionsChange({value: nextValue});
 
-  const mainElement = (
+        return {value: nextValue};
+      });
+
+    status === 'idle' && setStatus('succeeded');
+  }, [defaultValue, handleInputOptionsChange, status, value]);
+
+  const prefixNode =
+    prefix && renderFixed?.({...childrenProps, position: 'before', children: prefix});
+
+  const suffixNode =
+    suffix && renderFixed?.({...childrenProps, position: 'after', children: suffix});
+
+  const beforeLabelNode =
+    beforeLabel && renderLabel?.({...childrenProps, position: 'before', children: beforeLabel});
+
+  const afterLabelNode =
+    afterLabel && renderLabel?.({...childrenProps, position: 'after', children: afterLabel});
+
+  const main = (
     <>
-      {beforeLabelElement}
-      {prefixElement}
+      {beforeLabelNode}
+      {prefixNode}
       {renderMain?.({
         ...childrenProps,
         ref,
-        value: inputValue,
+        value: inputOptions.value,
         defaultValue,
-        ...(onChange ? {onChange: handleEvent(handleChange)} : undefined),
+        onChange: handleEvent(handleChange as (e: InputChangeEvent<T>) => void),
         ...(onFocus ? {onFocus: handleEvent(handleFocus)} : undefined),
         ...(onBlur ? {onBlur: handleEvent(handleBlur)} : undefined),
       })}
 
-      {suffixElement}
-      {afterLabelElement}
+      {suffixNode}
+      {afterLabelNode}
     </>
   );
 
-  const containerElement = (
-    <>{renderContainer ? renderContainer?.(childrenProps, mainElement) : mainElement}</>
-  );
+  const container = renderContainer?.({...childrenProps, children: main}) ?? main;
 
-  useEffect(() => {
-    const nextValue = defaultValue ?? value;
-
-    typeof nextValue === 'string' && setInputValue(nextValue);
-  }, [value, defaultValue]);
-
-  return <>{containerElement}</>;
-};
+  return <>{container}</>;
+}
 
 export default Input;
