@@ -1,0 +1,94 @@
+import '@testing-library/jest-dom';
+import {render} from '../utils/testUtils';
+import Textarea from '../../src/components/Textarea';
+import React, {useEffect, useState} from 'react';
+import {fireEvent} from '@testing-library/react';
+import {pickHTMLAttributes} from '@bearei/react-util';
+
+interface CustomTextareaProps {
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  value?: string;
+}
+
+const CustomTextarea: React.FC<CustomTextareaProps> = ({value, onChange}) => {
+  const [textareaValue, setTextareaValue] = useState('');
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+
+    const inputtedValue = e.currentTarget.value;
+
+    setTextareaValue(inputtedValue);
+    onChange?.(e);
+  };
+
+  useEffect(() => {
+    typeof value === 'string' && setTextareaValue(value);
+  }, [value]);
+
+  return <input value={textareaValue} aria-label="custom-textarea" onChange={handleChange} />;
+};
+
+const setup = () => {
+  const utils = render(
+    <Textarea<HTMLInputElement>
+      defaultValue="1"
+      events="onChange"
+      onChange={() => {}}
+      renderMain={props => <CustomTextarea {...props} />}
+    />,
+  );
+
+  const textarea = utils.getByLabelText('custom-textarea') as HTMLInputElement;
+
+  return {
+    textarea,
+    ...utils,
+  };
+};
+
+describe('test/components/Input.test.ts', () => {
+  test('It should be a render textarea', async () => {
+    const {getByDataCy} = render(
+      <Textarea<HTMLInputElement>
+        prefix="before"
+        suffix="after"
+        events={['onBlur', 'onChange', 'onFocus']}
+        renderContainer={({id, children}) => (
+          <div data-cy="container" id={id} tabIndex={1}>
+            {children}
+          </div>
+        )}
+        renderFixed={({position, children}) => (
+          <span data-cy={`fixed-${position}`}>{children}</span>
+        )}
+        renderHeader={({prefix, suffix}) => (
+          <>
+            {prefix}
+            {suffix}
+          </>
+        )}
+        renderMain={({id, ...props}) => (
+          <input {...pickHTMLAttributes(props)} data-cy="textarea" data-id={id} />
+        )}
+      />,
+    );
+
+    expect(getByDataCy('container')).toHaveAttribute('tabIndex');
+    expect(getByDataCy('fixed-before')).toHaveTextContent('before');
+    expect(getByDataCy('fixed-after')).toHaveTextContent('after');
+    expect(getByDataCy('textarea')).toHaveAttribute('value');
+  });
+
+  test('It would be to change the textarea value', async () => {
+    const {textarea} = setup();
+
+    expect(textarea).toHaveAttribute('value');
+
+    fireEvent.change(textarea, {target: {value: '17'}});
+
+    fireEvent.focus(textarea);
+    fireEvent.blur(textarea);
+
+    expect(textarea.value).toBe('17');
+  });
+});
