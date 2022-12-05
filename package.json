@@ -1,6 +1,6 @@
 {
   "name": "@bearei/react-input",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "module": "./lib-esm/index.js",
