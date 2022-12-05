@@ -18,7 +18,7 @@ Base input components that support React and React native
 #### Input
 
 | Name | Type | Required | Description |
-| :-- | --: | --: | :-- | --- |
+| :-- | --: | --: | :-- |
 | noStyle | `boolean` | ✘ | Set whether the input box is unstyled |
 | afterLabel | `ReactNode` | ✘ | The label at the back of the input box |
 | beforeLabel | `ReactNode` | ✘ | The label in front of the input box |
@@ -33,8 +33,8 @@ Base input components that support React and React native
 | status | `normal` `error` `warning` | ✘ | Set the input box status |
 | onChange | `(options: InputOptions) => void` | ✘ | This function is called when the input field value changes |
 | onValueChange | `onValueChange?: (value?: string) => void` | ✘ | Call back this function when the input box value changes |
-| onFocus | `(e: FocusEvent | NativeSyntheticEvent<TextInputFocusEventData>) => void` | ✘ | This function is called when the input box gets the focus |
-| onBlur | `(e: FocusEvent | NativeSyntheticEvent<TextInputFocusEventData>) => void` | ✘ | This function is called when the input field loses focus |
+| onFocus | `(e: FocusEvent) => void` `(e: NativeSyntheticEvent<TextInputFocusEventData>) => void` | ✘ | This function is called when the input box gets the focus |
+| onBlur | `(e: FocusEvent) => void` `(e: NativeSyntheticEvent<TextInputFocusEventData>) => void` | ✘ | This function is called when the input field loses focus |
 | renderLabel | `(props: InputLabelProps) => ReactNode` | ✘ | Render the input box label |
 | renderFixed | `(props: InputFixedProps) => ReactNode` | ✘ | Render the input box fixed |
 | renderMain | `(props: InputMainProps) => ReactNode` | ✘ | Render the input box main |
