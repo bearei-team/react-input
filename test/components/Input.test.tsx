@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import {render} from '../utils/testUtils';
-import Input, {InputChangeEvent, InputOptions} from '../../src/components/Input';
+import Input, {InputOptions} from '../../src/components/Input';
 import React, {useEffect, useState} from 'react';
 import {fireEvent} from '@testing-library/react';
 import {pickHTMLAttributes} from '@bearei/react-util';
@@ -32,9 +32,13 @@ const setup = () => {
   const utils = render(
     <Input<HTMLInputElement>
       defaultValue="1"
-      events="onChange"
       onChange={() => {}}
       renderMain={props => <CustomInput {...props} />}
+      renderContainer={({id, children}) => (
+        <div data-cy="container" id={id} tabIndex={1}>
+          {children}
+        </div>
+      )}
     />,
   );
 
@@ -54,7 +58,7 @@ describe('test/components/Input.test.ts', () => {
         suffix="after"
         afterLabel="after"
         beforeLabel="before"
-        events={['onBlur', 'onChange', 'onFocus']}
+        onChange={() => {}}
         renderContainer={({id, children}) => (
           <div data-cy="container" id={id} tabIndex={1}>
             {children}

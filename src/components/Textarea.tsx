@@ -1,59 +1,57 @@
 import {useId, ReactNode} from 'react';
-import handleEvent from '@bearei/react-util/lib/event';
-import Input, {
-  BaseInputProps,
-  InputChangeEvent,
-  InputChildrenProps,
-  InputFixedProps,
-  InputProps,
-} from './Input';
+import omit from '@bearei/react-util/lib/omit';
+import Input, {BaseInputProps, InputChildrenProps, InputFixedProps} from './Input';
 
-export type BaseTextareaProps<T, E> = Omit<BaseInputProps<T, E>, 'afterLabel' | 'beforeLabel'>;
-export interface TextareaProps<T, E>
-  extends Omit<BaseTextareaProps<T, E> & Pick<InputProps<T, E>, 'events'>, ''> {
+export type BaseTextareaProps<T = HTMLElement> = Omit<
+  BaseInputProps<T>,
+  'afterLabel' | 'beforeLabel'
+>;
+
+export interface TextareaProps<T> extends BaseTextareaProps<T> {
   /**
    * Render the card header
    */
-  renderHeader?: (props: TextareaHeaderProps<T, E>) => ReactNode;
+  renderHeader?: (props: TextareaHeaderProps) => ReactNode;
 
   /**
    * Render the textarea fixed
    */
-  renderFixed?: (props: TextareaFixedProps<T, E>) => ReactNode;
+  renderFixed?: (props: TextareaFixedProps) => ReactNode;
 
   /**
    * Render the textarea main
    */
-  renderMain?: (props: TextareaMainProps<T, E>) => ReactNode;
+  renderMain?: (props: TextareaMainProps<T>) => ReactNode;
 
   /**
    * Render the textarea container
    */
-  renderContainer?: (props: TextareaContainerProps<T, E>) => ReactNode;
+  renderContainer?: (props: TextareaContainerProps) => ReactNode;
 }
 
-export type TextareaChildrenProps<T, E> = Omit<BaseTextareaProps<T, E>, 'ref' | 'onChange'> &
-  Pick<InputChildrenProps<T, E>, 'id' | 'children' | 'handleEvent'>;
+export type TextareaChildrenProps = Omit<BaseTextareaProps, 'ref' | 'onChange'> &
+  Pick<InputChildrenProps, 'id' | 'children' | 'onChange'>;
 
-export type TextareaFixedProps<T, E> = TextareaChildrenProps<T, E> &
-  Pick<InputFixedProps<T, E>, 'position'>;
+export type TextareaFixedProps = TextareaChildrenProps & Pick<InputFixedProps, 'position'>;
+export type TextareaHeaderProps = TextareaChildrenProps;
+export type TextareaMainProps<T> = TextareaChildrenProps & Pick<BaseTextareaProps<T>, 'ref'>;
+export type TextareaContainerProps = TextareaChildrenProps;
 
-export type TextareaHeaderProps<T, E> = TextareaChildrenProps<T, E>;
-export type TextareaMainProps<T, E> = TextareaChildrenProps<T, E> &
-  Pick<BaseTextareaProps<T, E>, 'ref'>;
-
-export type TextareaContainerProps<T, E> = TextareaChildrenProps<T, E>;
-
-function Textarea<T, E = InputChangeEvent<T>>({
+const Textarea = <T extends HTMLElement>({
   prefix,
   suffix,
   renderFixed,
   renderHeader,
+  renderMain,
   renderContainer,
   ...props
-}: TextareaProps<T, E>) {
+}: TextareaProps<T>) => {
   const id = useId();
-  const childrenProps = {...props, id, handleEvent};
+  const childrenProps = {
+    ...omit(props, ['onChange', 'onFocus', 'onBlur']),
+    id,
+  };
+
   const prefixNode =
     prefix && renderFixed?.({...childrenProps, position: 'before', children: prefix});
 
@@ -61,7 +59,9 @@ function Textarea<T, E = InputChangeEvent<T>>({
     suffix && renderFixed?.({...childrenProps, position: 'after', children: suffix});
 
   const header = renderHeader?.({...childrenProps, prefix: prefixNode, suffix: suffixNode});
-  const main = <Input {...props} />;
+  const main = (
+    <Input {...props} renderMain={renderMain} renderContainer={({children}) => children} />
+  );
   const content = (
     <>
       {header}
@@ -69,9 +69,9 @@ function Textarea<T, E = InputChangeEvent<T>>({
     </>
   );
 
-  const container = renderContainer?.({...childrenProps, children: content}) ?? content;
+  const container = renderContainer?.({...childrenProps, children: content});
 
   return <>{container}</>;
-}
+};
 
 export default Textarea;

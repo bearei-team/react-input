@@ -5,36 +5,63 @@ import React, {useEffect, useState} from 'react';
 import {fireEvent} from '@testing-library/react';
 import {pickHTMLAttributes} from '@bearei/react-util';
 
+// interface CustomTextareaProps {
+//   onChange?: (e: React.ChangeEvent<HTMLInputElement>, value?: string) => void;
+//   value?: string;
+// }
+
+// const CustomTextarea: React.FC<CustomTextareaProps> = ({value, onChange}) => {
+//   const [textareaValue, setTextareaValue] = useState('');
+//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     e.preventDefault();
+
+//     const inputtedValue = e.currentTarget.value;
+
+//     setTextareaValue(inputtedValue);
+//     onChange?.(e, inputtedValue);
+//   };
+
+//   useEffect(() => {
+//     typeof value === 'string' && setTextareaValue(value);
+//   }, [value]);
+
+//   return <input value={textareaValue} aria-label="custom-textarea" onChange={handleChange} />;
+// };
+
 interface CustomTextareaProps {
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>, value?: string) => void;
   value?: string;
 }
 
 const CustomTextarea: React.FC<CustomTextareaProps> = ({value, onChange}) => {
-  const [textareaValue, setTextareaValue] = useState('');
+  const [inputValue, setInputValue] = useState('');
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
 
     const inputtedValue = e.currentTarget.value;
 
-    setTextareaValue(inputtedValue);
-    onChange?.(e);
+    setInputValue(inputtedValue);
+    onChange?.(e, inputtedValue);
   };
 
   useEffect(() => {
-    typeof value === 'string' && setTextareaValue(value);
+    typeof value === 'string' && setInputValue(value);
   }, [value]);
 
-  return <input value={textareaValue} aria-label="custom-textarea" onChange={handleChange} />;
+  return <input value={inputValue} aria-label="custom-textarea" onChange={handleChange} />;
 };
 
 const setup = () => {
   const utils = render(
     <Textarea<HTMLInputElement>
       defaultValue="1"
-      events="onChange"
       onChange={() => {}}
       renderMain={props => <CustomTextarea {...props} />}
+      renderContainer={({id, children}) => (
+        <div data-cy="container" id={id} tabIndex={1}>
+          {children}
+        </div>
+      )}
     />,
   );
 
@@ -52,7 +79,7 @@ describe('test/components/Input.test.ts', () => {
       <Textarea<HTMLInputElement>
         prefix="before"
         suffix="after"
-        events={['onBlur', 'onChange', 'onFocus']}
+        onChange={() => {}}
         renderContainer={({id, children}) => (
           <div data-cy="container" id={id} tabIndex={1}>
             {children}
@@ -67,9 +94,9 @@ describe('test/components/Input.test.ts', () => {
             {suffix}
           </>
         )}
-        renderMain={({id, ...props}) => (
-          <input {...pickHTMLAttributes(props)} data-cy="textarea" data-id={id} />
-        )}
+        renderMain={({id, ...props}) => {
+          return <input {...pickHTMLAttributes(props)} data-cy="textarea" data-id={id} />;
+        }}
       />,
     );
 
