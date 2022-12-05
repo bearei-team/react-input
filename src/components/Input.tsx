@@ -1,14 +1,16 @@
+import {bindEvents, handleDefaultEvent} from '@bearei/react-util/lib/event';
+import platformInfo from '@bearei/react-util/lib/platform';
 import {
-  useState,
-  useEffect,
-  useId,
-  useCallback,
   ChangeEvent,
-  Ref,
   DetailedHTMLProps,
+  FocusEvent,
   InputHTMLAttributes,
   ReactNode,
-  FocusEvent,
+  Ref,
+  useCallback,
+  useEffect,
+  useId,
+  useState,
 } from 'react';
 import type {
   NativeSyntheticEvent,
@@ -16,8 +18,6 @@ import type {
   TextInputFocusEventData,
   TextInputProps,
 } from 'react-native';
-import {bindEvents, handleDefaultEvent} from '@bearei/react-util/lib/event';
-import platformInfo from '@bearei/react-util/lib/platform';
 import Textarea from './Textarea';
 
 /**
@@ -191,9 +191,9 @@ const Input = <T extends HTMLElement>(props: InputProps<T>) => {
   } = props;
 
   const id = useId();
-  const events = Object.keys(props).filter(key => key.startsWith('on'));
   const [status, setStatus] = useState('idle');
   const [inputOptions, setInputOptions] = useState<InputOptions>({value: ''});
+  const events = Object.keys(props).filter(key => key.startsWith('on'));
   const platform = platformInfo();
   const childrenProps = {...args, id, loading, disabled};
 
@@ -204,14 +204,13 @@ const Input = <T extends HTMLElement>(props: InputProps<T>) => {
     },
     [onChange, onValueChange],
   );
+  const handleResponse = <E,>(e: E, callback?: (e: E) => void) => {
+    const response = !loading && !disabled;
+
+    response && callback?.(e);
+  };
 
   const handleCallback = (key: string) => {
-    const handleResponse = <E,>(e: E, callback?: (e: E) => void) => {
-      const response = !loading && !disabled;
-
-      response && callback?.(e);
-    };
-
     const event = {
       onBlur: handleDefaultEvent(
         (e: FocusEvent<T, Element> | NativeSyntheticEvent<TextInputFocusEventData>) =>
