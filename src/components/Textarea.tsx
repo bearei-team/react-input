@@ -1,5 +1,5 @@
-import {useId, ReactNode} from 'react';
 import omit from '@bearei/react-util/lib/omit';
+import {ReactNode, useId} from 'react';
 import Input, {BaseInputProps, InputChildrenProps, InputFixedProps} from './Input';
 
 export type BaseTextareaProps<T = HTMLElement> = Omit<
