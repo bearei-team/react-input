@@ -62,6 +62,7 @@ const Textarea = <T extends HTMLElement>({
   const main = (
     <Input {...props} renderMain={renderMain} renderContainer={({children}) => children} />
   );
+
   const content = (
     <>
       {header}

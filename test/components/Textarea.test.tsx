@@ -5,29 +5,6 @@ import React, {useEffect, useState} from 'react';
 import {fireEvent} from '@testing-library/react';
 import {pickHTMLAttributes} from '@bearei/react-util';
 
-// interface CustomTextareaProps {
-//   onChange?: (e: React.ChangeEvent<HTMLInputElement>, value?: string) => void;
-//   value?: string;
-// }
-
-// const CustomTextarea: React.FC<CustomTextareaProps> = ({value, onChange}) => {
-//   const [textareaValue, setTextareaValue] = useState('');
-//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//     e.preventDefault();
-
-//     const inputtedValue = e.currentTarget.value;
-
-//     setTextareaValue(inputtedValue);
-//     onChange?.(e, inputtedValue);
-//   };
-
-//   useEffect(() => {
-//     typeof value === 'string' && setTextareaValue(value);
-//   }, [value]);
-
-//   return <input value={textareaValue} aria-label="custom-textarea" onChange={handleChange} />;
-// };
-
 interface CustomTextareaProps {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>, value?: string) => void;
   value?: string;
@@ -53,10 +30,12 @@ const CustomTextarea: React.FC<CustomTextareaProps> = ({value, onChange}) => {
 
 const setup = () => {
   const utils = render(
-    <Textarea<HTMLInputElement>
+    <Textarea
       defaultValue="1"
       onChange={() => {}}
-      renderMain={props => <CustomTextarea {...props} />}
+      renderMain={({value, ...props}) => (
+        <CustomTextarea {...{...props, value: value?.toString()}} />
+      )}
       renderContainer={({id, children}) => (
         <div data-cy="container" id={id} tabIndex={1}>
           {children}
@@ -76,7 +55,7 @@ const setup = () => {
 describe('test/components/Input.test.ts', () => {
   test('It should be a render textarea', async () => {
     const {getByDataCy} = render(
-      <Textarea<HTMLInputElement>
+      <Textarea
         prefix="before"
         suffix="after"
         onChange={() => {}}
