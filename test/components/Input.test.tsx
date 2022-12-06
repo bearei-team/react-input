@@ -30,10 +30,10 @@ const CustomInput: React.FC<CustomInputProps> = ({value, onChange}) => {
 
 const setup = () => {
   const utils = render(
-    <Input<HTMLInputElement>
+    <Input
       defaultValue="1"
       onChange={() => {}}
-      renderMain={props => <CustomInput {...props} />}
+      renderMain={({value, ...props}) => <CustomInput {...{...props, value: value?.toString()}} />}
       renderContainer={({id, children}) => (
         <div data-cy="container" id={id} tabIndex={1}>
           {children}
@@ -53,7 +53,7 @@ const setup = () => {
 describe('test/components/Input.test.ts', () => {
   test('It should be a render input', async () => {
     const {getByDataCy} = render(
-      <Input<HTMLInputElement>
+      <Input
         prefix="before"
         suffix="after"
         afterLabel="after"

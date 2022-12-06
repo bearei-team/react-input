@@ -19,26 +19,22 @@ import type {
   TextInputProps,
 } from 'react-native';
 import Textarea from './Textarea';
+import * as array from '@bearei/react-util/lib/array';
 
 /**
- * Input box options
+ * Input options
  */
-export interface InputOptions<E = unknown> {
+export interface InputOptions<E = unknown> extends Pick<BaseInputProps, 'value'> {
   /**
-   * Input box value
-   */
-  value?: string | string[];
-
-  /**
-   * That triggers a change in the value of the input field
+   * Triggers an event when a dropdown option changes
    */
   event?: E;
 }
 
 export interface BaseInputProps<T = HTMLElement>
   extends Omit<
-    DetailedHTMLProps<InputHTMLAttributes<T>, T> & TextInputProps & Pick<InputOptions, 'value'>,
-    'prefix' | 'defaultValue' | 'size' | 'onChange' | 'onFocus' | 'onBlur'
+    DetailedHTMLProps<InputHTMLAttributes<T>, T> & TextInputProps,
+    'prefix' | 'defaultValue' | 'size' | 'onChange' | 'onFocus' | 'onBlur' | 'value'
   > {
   /**
    * Custom ref
@@ -46,77 +42,82 @@ export interface BaseInputProps<T = HTMLElement>
   ref?: Ref<T>;
 
   /**
-   * Set whether the input box is unstyled
+   * Input value
    */
-  noStyle?: boolean;
+  value?: string | string[];
 
   /**
-   * The label at the back of the input box
-   */
-  afterLabel?: ReactNode;
-
-  /**
-   * The label in front of the input box
-   */
-  beforeLabel?: ReactNode;
-
-  /**
-   * Input box prefix
-   */
-  prefix?: ReactNode;
-
-  /**
-   * Input box suffix
-   */
-  suffix?: ReactNode;
-
-  /**
-   * Default values for input box
+   * The default value for the input
    */
   defaultValue?: string | string[];
 
   /**
-   * Whether to disable input box
+   * no style input
+   */
+  noStyle?: boolean;
+
+  /**
+   * The label at the back of the input
+   */
+  afterLabel?: ReactNode;
+
+  /**
+   * The label in front of the input
+   */
+  beforeLabel?: ReactNode;
+
+  /**
+   * Input prefix
+   */
+  prefix?: ReactNode;
+
+  /**
+   * Input suffix
+   */
+  suffix?: ReactNode;
+
+  /**
+   * Whether to disable input
    */
   disabled?: boolean;
 
   /**
-   * Whether the input box is loading
+   * Whether or not to disable the input
    */
   loading?: boolean;
 
   /**
-   * Set the input box size
+   * Input size
    */
   size?: 'small' | 'medium' | 'large';
 
   /**
-   * Set the input box shape
+   * Input shape
    */
   shape?: 'square' | 'circle' | 'round';
 
   /**
-   * Set the input box status
+   * Input status
    */
   status?: 'normal' | 'error' | 'warning';
 
   /**
-   * This function is called when the input field value changes
+   * This function is called when the input option changes
    */
   onChange?: <E>(options: InputOptions<E>) => void;
 
   /**
-   * This function is called when the input box gets the focus
+   * This function is called when the input gets the focus
    */
   onFocus?: (e: FocusEvent<T, Element> | NativeSyntheticEvent<TextInputFocusEventData>) => void;
 
   /**
-   * This function is called when the input field loses focus
+   * This function is called when the input loses focus
    */
   onBlur?: (e: FocusEvent<T, Element> | NativeSyntheticEvent<TextInputFocusEventData>) => void;
 
   /**
-   * Call back this function when the input box value changes
+   * This function is called when the input value changes
    */
   onValueChange?: (value?: string | string[]) => void;
 }
@@ -125,22 +126,22 @@ export type Event = 'onChange' | 'onFocus' | 'onBlur';
 
 export interface InputProps<T> extends BaseInputProps<T> {
   /**
-   * Render the input box label
+   * Render the input label
    */
   renderLabel?: (props: InputLabelProps) => ReactNode;
 
   /**
-   * Render the input box fixed
+   * Render the input fixed
    */
   renderFixed?: (props: InputFixedProps) => ReactNode;
 
   /**
-   * Render the input box main
+   * Render the input main
    */
   renderMain?: (props: InputMainProps<T>) => ReactNode;
 
   /**
-   * Render the input box container
+   * Render the input container
    */
   renderContainer?: (props: InputContainerProps) => ReactNode;
 }
@@ -153,7 +154,7 @@ export interface InputChildrenProps extends Omit<BaseInputProps, 'ref' | 'onChan
   children?: ReactNode;
 
   /**
-   * This function is called when the input field value changes
+   * This function is called when the input option changes
    */
   onChange?: <E>(e: E) => void;
 }
@@ -171,17 +172,17 @@ export type MenuType = typeof Input & {Textarea: typeof Textarea};
 const Input = <T extends HTMLElement>(props: InputProps<T>) => {
   const {
     ref,
+    value,
     prefix,
     suffix,
-    value,
+    loading,
+    disabled,
     afterLabel,
     beforeLabel,
     defaultValue,
-    loading,
-    disabled,
-    onChange,
-    onFocus,
     onBlur,
+    onFocus,
+    onChange,
     onValueChange,
     renderFixed,
     renderLabel,
@@ -205,9 +206,9 @@ const Input = <T extends HTMLElement>(props: InputProps<T>) => {
     [onChange, onValueChange],
   );
   const handleResponse = <E,>(e: E, callback?: (e: E) => void) => {
-    const response = !loading && !disabled;
+    const isResponse = !loading && !disabled;
 
-    response && callback?.(e);
+    isResponse && callback?.(e);
   };
 
   const handleCallback = (key: string) => {
@@ -244,18 +245,17 @@ const Input = <T extends HTMLElement>(props: InputProps<T>) => {
     return event[key as keyof typeof event];
   };
 
-  const handleArrayToString = (array = '' as string | string[]) =>
-    Array.isArray(array) ? array.join(',') : array;
-
   useEffect(() => {
     const nextValue = status !== 'idle' ? value : defaultValue ?? value;
-    const update = typeof nextValue === 'string';
 
-    update &&
+    nextValue &&
       setInputOptions(currentOptions => {
-        const change = currentOptions.value !== nextValue && status === 'succeeded';
+        const isUpdate =
+          Array.isArray(nextValue) && Array.isArray(currentOptions.value)
+            ? !array.isEqual(currentOptions.value, nextValue)
+            : currentOptions.value !== nextValue && status === 'succeeded';
 
-        change && handleInputOptionsChange({value: nextValue});
+        isUpdate && handleInputOptionsChange({value: nextValue});
 
         return {value: nextValue};
       });
@@ -278,8 +278,8 @@ const Input = <T extends HTMLElement>(props: InputProps<T>) => {
   const main = renderMain?.({
     ...childrenProps,
     ref,
-    value: handleArrayToString(inputOptions.value),
-    defaultValue: handleArrayToString(defaultValue),
+    value: inputOptions.value,
+    defaultValue,
     ...bindEvents(events, handleCallback),
   });
 
