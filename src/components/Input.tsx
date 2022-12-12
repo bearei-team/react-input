@@ -1,3 +1,4 @@
+import * as array from '@bearei/react-util/lib/array';
 import {bindEvents, handleDefaultEvent} from '@bearei/react-util/lib/event';
 import platformInfo from '@bearei/react-util/lib/platform';
 import {
@@ -19,14 +20,13 @@ import type {
   TextInputProps,
 } from 'react-native';
 import Textarea from './Textarea';
-import * as array from '@bearei/react-util/lib/array';
 
 /**
  * Input options
  */
 export interface InputOptions<E = unknown> extends Pick<BaseInputProps, 'value'> {
   /**
-   * Triggers an event when a dropdown option changes
+   * Triggers an event when a input option changes
    */
   event?: E;
 }
@@ -138,12 +138,12 @@ export interface InputProps<T> extends BaseInputProps<T> {
   /**
    * Render the input main
    */
-  renderMain?: (props: InputMainProps<T>) => ReactNode;
+  renderMain: (props: InputMainProps<T>) => ReactNode;
 
   /**
    * Render the input container
    */
-  renderContainer?: (props: InputContainerProps) => ReactNode;
+  renderContainer: (props: InputContainerProps) => ReactNode;
 }
 
 export interface InputChildrenProps extends Omit<BaseInputProps, 'ref' | 'onChange'> {
@@ -263,37 +263,28 @@ const Input = <T extends HTMLElement>(props: InputProps<T>) => {
     status === 'idle' && setStatus('succeeded');
   }, [defaultValue, handleInputOptionsChange, status, value]);
 
-  const prefixNode =
-    prefix && renderFixed?.({...childrenProps, position: 'before', children: prefix});
+  const prefixNode = renderFixed?.({...childrenProps, position: 'before', children: prefix});
+  const suffixNode = renderFixed?.({...childrenProps, position: 'after', children: suffix});
+  const beforeLabelNode = renderLabel?.({
+    ...childrenProps,
+    position: 'before',
+    children: beforeLabel,
+  });
 
-  const suffixNode =
-    suffix && renderFixed?.({...childrenProps, position: 'after', children: suffix});
-
-  const beforeLabelNode =
-    beforeLabel && renderLabel?.({...childrenProps, position: 'before', children: beforeLabel});
-
-  const afterLabelNode =
-    afterLabel && renderLabel?.({...childrenProps, position: 'after', children: afterLabel});
-
-  const main = renderMain?.({
+  const afterLabelNode = renderLabel?.({...childrenProps, position: 'after', children: afterLabel});
+  const main = renderMain({
     ...childrenProps,
     ref,
     value: inputOptions.value,
     defaultValue,
+    beforeLabel: beforeLabelNode,
+    prefix: prefixNode,
+    suffix: suffixNode,
+    afterLabel: afterLabelNode,
     ...bindEvents(events, handleCallback),
   });
 
-  const content = (
-    <>
-      {beforeLabelNode}
-      {prefixNode}
-      {main}
-      {suffixNode}
-      {afterLabelNode}
-    </>
-  );
-
-  const container = renderContainer?.({...childrenProps, children: content});
+  const container = renderContainer({...childrenProps, children: main});
 
   return <>{container}</>;
 };
