@@ -1,8 +1,8 @@
 import omit from '@bearei/react-util/lib/omit';
 import {ReactNode, useId} from 'react';
-import Input, {BaseInputProps, InputChildrenProps, InputFixedProps} from './Input';
+import {BaseInputProps, InputChildrenProps, InputFixedProps} from './Input';
 
-export type BaseTextareaProps<T = HTMLElement> = Omit<
+export type BaseTextareaProps<T = HTMLInputElement> = Omit<
   BaseInputProps<T>,
   'afterLabel' | 'beforeLabel'
 >;
@@ -21,12 +21,12 @@ export interface TextareaProps<T> extends BaseTextareaProps<T> {
   /**
    * Render the textarea main
    */
-  renderMain?: (props: TextareaMainProps<T>) => ReactNode;
+  renderMain: (props: TextareaMainProps<T>) => ReactNode;
 
   /**
    * Render the textarea container
    */
-  renderContainer?: (props: TextareaContainerProps) => ReactNode;
+  renderContainer: (props: TextareaContainerProps) => ReactNode;
 }
 
 export type TextareaChildrenProps = Omit<BaseTextareaProps, 'ref' | 'onChange'> &
@@ -34,10 +34,15 @@ export type TextareaChildrenProps = Omit<BaseTextareaProps, 'ref' | 'onChange'> 
 
 export type TextareaFixedProps = TextareaChildrenProps & Pick<InputFixedProps, 'position'>;
 export type TextareaHeaderProps = TextareaChildrenProps;
-export type TextareaMainProps<T> = TextareaChildrenProps & Pick<BaseTextareaProps<T>, 'ref'>;
+export interface TextareaMainProps<T>
+  extends Partial<TextareaChildrenProps & Pick<BaseTextareaProps<T>, 'ref'>> {
+  header?: ReactNode;
+}
+
 export type TextareaContainerProps = TextareaChildrenProps;
 
-const Textarea = <T extends HTMLElement>({
+const Textarea = <T extends HTMLInputElement>({
+  ref,
   prefix,
   suffix,
   renderFixed,
@@ -59,18 +64,8 @@ const Textarea = <T extends HTMLElement>({
     suffix && renderFixed?.({...childrenProps, position: 'after', children: suffix});
 
   const header = renderHeader?.({...childrenProps, prefix: prefixNode, suffix: suffixNode});
-  const main = (
-    <Input {...props} renderMain={renderMain} renderContainer={({children}) => children} />
-  );
-
-  const content = (
-    <>
-      {header}
-      {main}
-    </>
-  );
-
-  const container = renderContainer?.({...childrenProps, children: content});
+  const main = renderMain({...childrenProps, ref, header});
+  const container = renderContainer({...childrenProps, children: main});
 
   return <>{container}</>;
 };

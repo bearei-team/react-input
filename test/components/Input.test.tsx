@@ -59,19 +59,25 @@ describe('test/components/Input.test.ts', () => {
         afterLabel="after"
         beforeLabel="before"
         onChange={() => {}}
-        renderContainer={({id, children}) => (
-          <div data-cy="container" id={id} tabIndex={1}>
-            {children}
-          </div>
-        )}
         renderLabel={({position, children}) => (
           <span data-cy={`label-${position}`}>{children}</span>
         )}
         renderFixed={({position, children}) => (
           <span data-cy={`fixed-${position}`}>{children}</span>
         )}
-        renderMain={({id, ...props}) => (
-          <input {...pickHTMLAttributes(props)} data-cy="input" data-id={id} />
+        renderMain={({id, afterLabel, beforeLabel, suffix, prefix, ...props}) => (
+          <>
+            {beforeLabel}
+            {prefix}
+            <input {...pickHTMLAttributes(props)} data-cy="input" data-id={id} />
+            {suffix}
+            {afterLabel}
+          </>
+        )}
+        renderContainer={({id, children}) => (
+          <div data-cy="container" id={id} tabIndex={1}>
+            {children}
+          </div>
         )}
       />,
     );

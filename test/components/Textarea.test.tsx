@@ -59,11 +59,6 @@ describe('test/components/Input.test.ts', () => {
         prefix="before"
         suffix="after"
         onChange={() => {}}
-        renderContainer={({id, children}) => (
-          <div data-cy="container" id={id} tabIndex={1}>
-            {children}
-          </div>
-        )}
         renderFixed={({position, children}) => (
           <span data-cy={`fixed-${position}`}>{children}</span>
         )}
@@ -73,9 +68,23 @@ describe('test/components/Input.test.ts', () => {
             {suffix}
           </>
         )}
-        renderMain={({id, ...props}) => {
-          return <input {...pickHTMLAttributes(props)} data-cy="textarea" data-id={id} />;
-        }}
+        renderMain={({id, header, ...props}) => (
+          <>
+            {header}
+            <input
+              {...pickHTMLAttributes(props)}
+              data-cy="textarea"
+              data-id={id}
+              value=""
+              onChange={() => {}}
+            />
+          </>
+        )}
+        renderContainer={({id, children}) => (
+          <div data-cy="container" id={id} tabIndex={1}>
+            {children}
+          </div>
+        )}
       />,
     );
 
