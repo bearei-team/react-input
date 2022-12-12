@@ -197,7 +197,6 @@ const Input = <T extends HTMLInputElement>(props: InputProps<T>) => {
   const events = Object.keys(props).filter(key => key.startsWith('on'));
   const platform = platformInfo();
   const childrenProps = {...args, id, loading, disabled};
-
   const handleInputOptionsChange = useCallback(
     <E,>(options: InputOptions<E>) => {
       onChange?.(options);
@@ -205,6 +204,7 @@ const Input = <T extends HTMLInputElement>(props: InputProps<T>) => {
     },
     [onChange, onValueChange],
   );
+
   const handleResponse = <E,>(e: E, callback?: (e: E) => void) => {
     const isResponse = !loading && !disabled;
 
@@ -263,15 +263,23 @@ const Input = <T extends HTMLInputElement>(props: InputProps<T>) => {
     status === 'idle' && setStatus('succeeded');
   }, [defaultValue, handleInputOptionsChange, status, value]);
 
-  const prefixNode = renderFixed?.({...childrenProps, position: 'before', children: prefix});
-  const suffixNode = renderFixed?.({...childrenProps, position: 'after', children: suffix});
-  const beforeLabelNode = renderLabel?.({
-    ...childrenProps,
-    position: 'before',
-    children: beforeLabel,
-  });
+  const prefixNode =
+    prefix && renderFixed?.({...childrenProps, position: 'before', children: prefix});
 
-  const afterLabelNode = renderLabel?.({...childrenProps, position: 'after', children: afterLabel});
+  const suffixNode =
+    suffix && renderFixed?.({...childrenProps, position: 'after', children: suffix});
+
+  const beforeLabelNode =
+    beforeLabel &&
+    renderLabel?.({
+      ...childrenProps,
+      position: 'before',
+      children: beforeLabel,
+    });
+
+  const afterLabelNode =
+    afterLabel && renderLabel?.({...childrenProps, position: 'after', children: afterLabel});
+
   const main = renderMain({
     ...childrenProps,
     ref,
