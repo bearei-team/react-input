@@ -1,4 +1,3 @@
-import omit from '@bearei/react-util/lib/omit';
 import {ReactNode, useId} from 'react';
 import {BaseInputProps, InputChildrenProps, InputFixedProps} from './Input';
 
@@ -11,12 +10,12 @@ export interface TextareaProps<T> extends BaseTextareaProps<T> {
   /**
    * Render the card header
    */
-  renderHeader?: (props: TextareaHeaderProps) => ReactNode;
+  renderHeader?: (props: TextareaHeaderProps<T>) => ReactNode;
 
   /**
    * Render the textarea fixed
    */
-  renderFixed?: (props: TextareaFixedProps) => ReactNode;
+  renderFixed?: (props: TextareaFixedProps<T>) => ReactNode;
 
   /**
    * Render the textarea main
@@ -26,20 +25,20 @@ export interface TextareaProps<T> extends BaseTextareaProps<T> {
   /**
    * Render the textarea container
    */
-  renderContainer: (props: TextareaContainerProps) => ReactNode;
+  renderContainer: (props: TextareaContainerProps<T>) => ReactNode;
 }
 
-export type TextareaChildrenProps = Omit<BaseTextareaProps, 'ref' | 'onChange'> &
-  Pick<InputChildrenProps, 'id' | 'children' | 'onChange'>;
+export type TextareaChildrenProps<T> = Omit<BaseTextareaProps<T>, 'ref'> &
+  Pick<InputChildrenProps, 'id' | 'children'>;
 
-export type TextareaFixedProps = TextareaChildrenProps & Pick<InputFixedProps, 'position'>;
-export type TextareaHeaderProps = TextareaChildrenProps;
+export type TextareaFixedProps<T> = TextareaChildrenProps<T> & Pick<InputFixedProps, 'position'>;
+export type TextareaHeaderProps<T> = TextareaChildrenProps<T>;
 export interface TextareaMainProps<T>
-  extends Partial<TextareaChildrenProps & Pick<BaseTextareaProps<T>, 'ref'>> {
+  extends Partial<TextareaChildrenProps<T> & Pick<BaseTextareaProps<T>, 'ref'>> {
   header?: ReactNode;
 }
 
-export type TextareaContainerProps = TextareaChildrenProps;
+export type TextareaContainerProps<T> = TextareaChildrenProps<T>;
 
 const Textarea = <T extends HTMLInputElement>({
   ref,
@@ -52,11 +51,7 @@ const Textarea = <T extends HTMLInputElement>({
   ...props
 }: TextareaProps<T>) => {
   const id = useId();
-  const childrenProps = {
-    ...omit(props, ['onChange', 'onFocus', 'onBlur']),
-    id,
-  };
-
+  const childrenProps = {...props, id};
   const prefixNode =
     prefix && renderFixed?.({...childrenProps, position: 'before', children: prefix});
 

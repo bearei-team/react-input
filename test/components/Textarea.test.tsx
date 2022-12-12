@@ -33,8 +33,11 @@ const setup = () => {
     <Textarea
       defaultValue="1"
       onChange={() => {}}
-      renderMain={({value, ...props}) => (
-        <CustomTextarea {...{...props, value: value?.toString()}} />
+      renderMain={({value, onChange, ...props}) => (
+        <CustomTextarea
+          {...{...props, value: value?.toString()}}
+          onChange={(e, value) => onChange?.({event: e, value})}
+        />
       )}
       renderContainer={({id, children}) => (
         <div data-cy="container" id={id} tabIndex={1}>
