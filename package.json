@@ -1,6 +1,6 @@
 {
   "name": "@bearei/react-input",
-  "version": "0.0.20",
+  "version": "0.0.18",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "module": "./lib-esm/index.js",
@@ -84,10 +84,10 @@
     "build:cjs": "cross-env TS_NODE_PROJECT=\"tsconfig.cjs.json\" LIBRARY=\"commonjs\" webpack --progress",
     "clean": "shx rm -rf lib-esm lib",
     "test": "jest --watchAll --detectOpenHandles",
-    "coverage": "yarn jest --coverage",
+    "coverage": "yarn test --coverage",
     "lint": "eslint . --ext .jsx,.ts,.tsx",
     "fix": "yarn lint --fix",
-    "publish": "yarn lint && yarn coverage && yarn build && yarn npm publish --access public"
+    "publish": "yarn build && yarn npm publish --access public"
   },
   "engines": {
     "node": ">=16.0.0"

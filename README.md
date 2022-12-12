@@ -10,17 +10,17 @@ Base input components that support React and React native
 
 #### Input Options
 
-| Name  |                Type | Required | Description                                   |
-| :---- | ------------------: | -------: | :-------------------------------------------- |
-| value | `string` `string[]` |        ✘ | Input value                                   |
-| event |           `unknown` |        ✘ | Triggers an event when a input option changes |
+| Name  |                Type | Required | Description                                            |
+| :---- | ------------------: | -------: | :----------------------------------------------------- |
+| value | `string` `string[]` |        ✘ | Input value                                            |
+| event |           `unknown` |        ✘ | That triggers a change in the value of the input field |
 
 #### Input
 
 | Name | Type | Required | Description |
 | :-- | --: | --: | :-- |
 | value | `string` `string[]` | ✘ | Input value |
-| defaultValue | `string` `string[]` | ✘ | The default value for the input |
+| defaultValue | `string` | ✘ | The default value for the input |
 | noStyle | `boolean` | ✘ | no style input |
 | afterLabel | `ReactNode` | ✘ | The label at the back of the input |
 | beforeLabel | `ReactNode` | ✘ | The label in front of the input |
@@ -37,8 +37,8 @@ Base input components that support React and React native
 | onValueChange | `(value:string) => void` | ✘ | This function is called when the input value changes |
 | renderLabel | `(props:InputLabelProps) => void` | ✘ | Render the input label |
 | renderFixed | `(props:InputFixedProps) => void` | ✘ | Render the input fixed |
-| renderMain | `(props:InputMainProps) => void` | ✔ | Render the input main |
-| renderContainer | `(props:InputContainerProps) => void` | ✔ | Render the input container |
+| renderMain | `(props:InputMainProps) => void` | ✘ | Render the input main |
+| renderContainer | `(props:InputContainerProps) => void` | ✘ | Render the input container |
 
 ## Use
 
