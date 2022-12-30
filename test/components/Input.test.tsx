@@ -1,16 +1,16 @@
+import { pickHTMLAttributes } from '@bearei/react-util';
 import '@testing-library/jest-dom';
-import {render} from '../utils/testUtils';
-import Input, {InputOptions} from '../../src/components/Input';
-import React, {useEffect, useState} from 'react';
-import {fireEvent} from '@testing-library/react';
-import {pickHTMLAttributes} from '@bearei/react-util';
+import { fireEvent } from '@testing-library/react';
+import React, { useEffect, useState } from 'react';
+import Input from '../../src/components/Input';
+import { render } from '../utils/test_utils';
 
 interface CustomInputProps {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>, value?: string) => void;
   value?: string;
 }
 
-const CustomInput: React.FC<CustomInputProps> = ({value, onChange}) => {
+const CustomInput: React.FC<CustomInputProps> = ({ value, onChange }) => {
   const [inputValue, setInputValue] = useState('');
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -25,7 +25,13 @@ const CustomInput: React.FC<CustomInputProps> = ({value, onChange}) => {
     typeof value === 'string' && setInputValue(value);
   }, [value]);
 
-  return <input value={inputValue} aria-label="custom-input" onChange={handleChange} />;
+  return (
+    <input
+      value={inputValue}
+      aria-label="custom-input"
+      onChange={handleChange}
+    />
+  );
 };
 
 const setup = () => {
@@ -33,8 +39,10 @@ const setup = () => {
     <Input
       defaultValue="1"
       onChange={() => {}}
-      renderMain={({value, ...props}) => <CustomInput {...{...props, value: value?.toString()}} />}
-      renderContainer={({id, children}) => (
+      renderMain={({ value, ...props }) => (
+        <CustomInput {...{ ...props, value: value?.toString() }} />
+      )}
+      renderContainer={({ id, children }) => (
         <div data-cy="container" id={id} tabIndex={1}>
           {children}
         </div>
@@ -52,29 +60,40 @@ const setup = () => {
 
 describe('test/components/Input.test.ts', () => {
   test('It should be a render input', async () => {
-    const {getByDataCy} = render(
+    const { getByDataCy } = render(
       <Input
         prefix="before"
         suffix="after"
         afterLabel="after"
         beforeLabel="before"
         onChange={() => {}}
-        renderLabel={({position, children}) => (
+        renderLabel={({ position, children }) => (
           <span data-cy={`label-${position}`}>{children}</span>
         )}
-        renderFixed={({position, children}) => (
+        renderFixed={({ position, children }) => (
           <span data-cy={`fixed-${position}`}>{children}</span>
         )}
-        renderMain={({id, afterLabel, beforeLabel, suffix, prefix, ...props}) => (
+        renderMain={({
+          id,
+          afterLabel,
+          beforeLabel,
+          suffix,
+          prefix,
+          ...props
+        }) => (
           <>
             {beforeLabel}
             {prefix}
-            <input {...pickHTMLAttributes(props)} data-cy="input" data-id={id} />
+            <input
+              {...pickHTMLAttributes(props)}
+              data-cy="input"
+              data-id={id}
+            />
             {suffix}
             {afterLabel}
           </>
         )}
-        renderContainer={({id, children}) => (
+        renderContainer={({ id, children }) => (
           <div data-cy="container" id={id} tabIndex={1}>
             {children}
           </div>
@@ -91,11 +110,11 @@ describe('test/components/Input.test.ts', () => {
   });
 
   test('It would be to change the input value', async () => {
-    const {input} = setup();
+    const { input } = setup();
 
     expect(input).toHaveAttribute('value');
 
-    fireEvent.change(input, {target: {value: '17'}});
+    fireEvent.change(input, { target: { value: '17' } });
 
     fireEvent.focus(input);
     fireEvent.blur(input);

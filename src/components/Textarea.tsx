@@ -1,7 +1,11 @@
-import {ReactNode, useId} from 'react';
-import {BaseInputProps, InputChildrenProps, InputFixedProps} from './Input';
+import { ReactNode, useId } from 'react';
+import type {
+  BaseInputProps,
+  InputChildrenProps,
+  InputFixedProps,
+} from './Input';
 
-export type BaseTextareaProps<T = HTMLInputElement> = Omit<
+export type BaseTextareaProps<T> = Omit<
   BaseInputProps<T>,
   'afterLabel' | 'beforeLabel'
 >;
@@ -29,18 +33,22 @@ export interface TextareaProps<T> extends BaseTextareaProps<T> {
 }
 
 export type TextareaChildrenProps<T> = Omit<BaseTextareaProps<T>, 'ref'> &
-  Pick<InputChildrenProps, 'id' | 'children'>;
+  Pick<InputChildrenProps<T>, 'id' | 'children'>;
 
-export type TextareaFixedProps<T> = TextareaChildrenProps<T> & Pick<InputFixedProps, 'position'>;
+export type TextareaFixedProps<T> = TextareaChildrenProps<T> &
+  Pick<InputFixedProps<T>, 'position'>;
+
 export type TextareaHeaderProps<T> = TextareaChildrenProps<T>;
 export interface TextareaMainProps<T>
-  extends Partial<TextareaChildrenProps<T> & Pick<BaseTextareaProps<T>, 'ref'>> {
+  extends Partial<
+    TextareaChildrenProps<T> & Pick<BaseTextareaProps<T>, 'ref'>
+  > {
   header?: ReactNode;
 }
 
 export type TextareaContainerProps<T> = TextareaChildrenProps<T>;
 
-const Textarea = <T extends HTMLInputElement>({
+const Textarea = <T extends HTMLInputElement = HTMLInputElement>({
   ref,
   prefix,
   suffix,
@@ -51,16 +59,23 @@ const Textarea = <T extends HTMLInputElement>({
   ...props
 }: TextareaProps<T>) => {
   const id = useId();
-  const childrenProps = {...props, id};
+  const childrenProps = { ...props, id };
   const prefixNode =
-    prefix && renderFixed?.({...childrenProps, position: 'before', children: prefix});
+    prefix &&
+    renderFixed?.({ ...childrenProps, position: 'before', children: prefix });
 
   const suffixNode =
-    suffix && renderFixed?.({...childrenProps, position: 'after', children: suffix});
+    suffix &&
+    renderFixed?.({ ...childrenProps, position: 'after', children: suffix });
 
-  const header = renderHeader?.({...childrenProps, prefix: prefixNode, suffix: suffixNode});
-  const main = renderMain({...childrenProps, ref, header});
-  const container = renderContainer({...childrenProps, children: main});
+  const header = renderHeader?.({
+    ...childrenProps,
+    prefix: prefixNode,
+    suffix: suffixNode,
+  });
+
+  const main = renderMain({ ...childrenProps, ref, header });
+  const container = renderContainer({ ...childrenProps, children: main });
 
   return <>{container}</>;
 };
