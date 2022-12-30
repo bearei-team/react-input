@@ -1,6 +1,9 @@
-import * as array from '@bearei/react-util/lib/array';
-import {bindEvents, handleDefaultEvent} from '@bearei/react-util/lib/event';
-import platformInfo from '@bearei/react-util/lib/platform';
+import * as array from '@bearei/react-util/lib/commonjs/array';
+import {
+  bindEvents,
+  handleDefaultEvent,
+} from '@bearei/react-util/lib/commonjs/event';
+import platformInfo from '@bearei/react-util/lib/commonjs/platform';
 import {
   ChangeEvent,
   DetailedHTMLProps,
@@ -24,17 +27,24 @@ import Textarea from './Textarea';
 /**
  * Input options
  */
-export interface InputOptions<E = unknown> extends Pick<BaseInputProps, 'value'> {
+export interface InputOptions<T, E = unknown>
+  extends Pick<BaseInputProps<T>, 'value'> {
   /**
    * Triggers an event when a input option changes
    */
   event?: E;
 }
 
-export interface BaseInputProps<T = HTMLInputElement>
+export interface BaseInputProps<T>
   extends Omit<
     DetailedHTMLProps<InputHTMLAttributes<T>, T> & TextInputProps,
-    'prefix' | 'defaultValue' | 'size' | 'onChange' | 'onFocus' | 'onBlur' | 'value'
+    | 'prefix'
+    | 'defaultValue'
+    | 'size'
+    | 'onChange'
+    | 'onFocus'
+    | 'onBlur'
+    | 'value'
   > {
   /**
    * Custom ref
@@ -104,17 +114,21 @@ export interface BaseInputProps<T = HTMLInputElement>
   /**
    * This function is called when the input option changes
    */
-  onChange?: <E>(options: InputOptions<E>) => void;
+  onChange?: <E>(options: InputOptions<T, E>) => void;
 
   /**
    * This function is called when the input gets the focus
    */
-  onFocus?: (e: FocusEvent<T, Element> | NativeSyntheticEvent<TextInputFocusEventData>) => void;
+  onFocus?: (
+    e: FocusEvent<T, Element> | NativeSyntheticEvent<TextInputFocusEventData>,
+  ) => void;
 
   /**
    * This function is called when the input loses focus
    */
-  onBlur?: (e: FocusEvent<T, Element> | NativeSyntheticEvent<TextInputFocusEventData>) => void;
+  onBlur?: (
+    e: FocusEvent<T, Element> | NativeSyntheticEvent<TextInputFocusEventData>,
+  ) => void;
 
   /**
    * This function is called when the input value changes
@@ -128,12 +142,12 @@ export interface InputProps<T> extends BaseInputProps<T> {
   /**
    * Render the input label
    */
-  renderLabel?: (props: InputLabelProps) => ReactNode;
+  renderLabel?: (props: InputLabelProps<T>) => ReactNode;
 
   /**
    * Render the input fixed
    */
-  renderFixed?: (props: InputFixedProps) => ReactNode;
+  renderFixed?: (props: InputFixedProps<T>) => ReactNode;
 
   /**
    * Render the input main
@@ -143,10 +157,11 @@ export interface InputProps<T> extends BaseInputProps<T> {
   /**
    * Render the input container
    */
-  renderContainer: (props: InputContainerProps) => ReactNode;
+  renderContainer: (props: InputContainerProps<T>) => ReactNode;
 }
 
-export interface InputChildrenProps extends Omit<BaseInputProps, 'ref' | 'onChange'> {
+export interface InputChildrenProps<T>
+  extends Omit<BaseInputProps<T>, 'ref' | 'onChange'> {
   /**
    * Component unique ID
    */
@@ -159,17 +174,20 @@ export interface InputChildrenProps extends Omit<BaseInputProps, 'ref' | 'onChan
   onChange?: <E>(e: E) => void;
 }
 
-export interface InputFixedProps extends InputChildrenProps {
+export interface InputFixedProps<T> extends InputChildrenProps<T> {
   position: 'before' | 'after';
 }
 
-export type InputLabelProps = InputFixedProps;
-export type InputMainProps<T> = InputChildrenProps & Pick<BaseInputProps<T>, 'ref'>;
-export type InputContainerProps = InputChildrenProps;
+export type InputLabelProps<T> = InputFixedProps<T>;
+export type InputMainProps<T> = InputChildrenProps<T> &
+  Pick<BaseInputProps<T>, 'ref'>;
 
-export type MenuType = typeof Input & {Textarea: typeof Textarea};
+export type InputContainerProps<T> = InputChildrenProps<T>;
+export type MenuType = typeof Input & { Textarea: typeof Textarea };
 
-const Input = <T extends HTMLInputElement>(props: InputProps<T>) => {
+const Input = <T extends HTMLInputElement = HTMLInputElement>(
+  props: InputProps<T>,
+) => {
   const {
     ref,
     value,
@@ -193,12 +211,15 @@ const Input = <T extends HTMLInputElement>(props: InputProps<T>) => {
 
   const id = useId();
   const [status, setStatus] = useState('idle');
-  const [inputOptions, setInputOptions] = useState<InputOptions>({value: ''});
+  const [inputOptions, setInputOptions] = useState<InputOptions<T>>({
+    value: '',
+  });
+
   const events = Object.keys(props).filter(key => key.startsWith('on'));
   const platform = platformInfo();
-  const childrenProps = {...args, id, loading, disabled};
+  const childrenProps = { ...args, id, loading, disabled };
   const handleInputOptionsChange = useCallback(
-    <E,>(options: InputOptions<E>) => {
+    <E,>(options: InputOptions<T, E>) => {
       onChange?.(options);
       onValueChange?.(options.value);
     },
@@ -214,24 +235,37 @@ const Input = <T extends HTMLInputElement>(props: InputProps<T>) => {
   const handleCallback = (key: string) => {
     const event = {
       onBlur: handleDefaultEvent(
-        (e: FocusEvent<T, Element> | NativeSyntheticEvent<TextInputFocusEventData>) =>
-          handleResponse(e, onBlur),
+        (
+          e:
+            | FocusEvent<T, Element>
+            | NativeSyntheticEvent<TextInputFocusEventData>,
+        ) => handleResponse(e, onBlur),
       ),
       onFocus: handleDefaultEvent(
-        (e: FocusEvent<T, Element> | NativeSyntheticEvent<TextInputFocusEventData>) =>
-          handleResponse(e, onFocus),
+        (
+          e:
+            | FocusEvent<T, Element>
+            | NativeSyntheticEvent<TextInputFocusEventData>,
+        ) => handleResponse(e, onFocus),
       ),
       onChange: handleDefaultEvent(
-        (e: NativeSyntheticEvent<TextInputChangeEventData> | ChangeEvent<HTMLInputElement>) => {
+        (
+          e:
+            | NativeSyntheticEvent<TextInputChangeEventData>
+            | ChangeEvent<HTMLInputElement>,
+        ) => {
           const handleChange = (
-            e: NativeSyntheticEvent<TextInputChangeEventData> | ChangeEvent<HTMLInputElement>,
+            e:
+              | NativeSyntheticEvent<TextInputChangeEventData>
+              | ChangeEvent<HTMLInputElement>,
           ) => {
             const value =
               platform === 'ReactNative'
-                ? (e as NativeSyntheticEvent<TextInputChangeEventData>).nativeEvent.text
+                ? (e as NativeSyntheticEvent<TextInputChangeEventData>)
+                    .nativeEvent.text
                 : (e as ChangeEvent<HTMLInputElement>).currentTarget.value;
 
-            const options = {event: e, value};
+            const options = { event: e, value };
 
             setInputOptions(options);
             handleInputOptionsChange(options);
@@ -255,19 +289,21 @@ const Input = <T extends HTMLInputElement>(props: InputProps<T>) => {
             ? !array.isEqual(currentOptions.value, nextValue)
             : currentOptions.value !== nextValue && status === 'succeeded';
 
-        isUpdate && handleInputOptionsChange({value: nextValue});
+        isUpdate && handleInputOptionsChange({ value: nextValue });
 
-        return {value: nextValue};
+        return { value: nextValue };
       });
 
     status === 'idle' && setStatus('succeeded');
   }, [defaultValue, handleInputOptionsChange, status, value]);
 
   const prefixNode =
-    prefix && renderFixed?.({...childrenProps, position: 'before', children: prefix});
+    prefix &&
+    renderFixed?.({ ...childrenProps, position: 'before', children: prefix });
 
   const suffixNode =
-    suffix && renderFixed?.({...childrenProps, position: 'after', children: suffix});
+    suffix &&
+    renderFixed?.({ ...childrenProps, position: 'after', children: suffix });
 
   const beforeLabelNode =
     beforeLabel &&
@@ -278,7 +314,12 @@ const Input = <T extends HTMLInputElement>(props: InputProps<T>) => {
     });
 
   const afterLabelNode =
-    afterLabel && renderLabel?.({...childrenProps, position: 'after', children: afterLabel});
+    afterLabel &&
+    renderLabel?.({
+      ...childrenProps,
+      position: 'after',
+      children: afterLabel,
+    });
 
   const main = renderMain({
     ...childrenProps,
@@ -292,11 +333,11 @@ const Input = <T extends HTMLInputElement>(props: InputProps<T>) => {
     ...bindEvents(events, handleCallback),
   });
 
-  const container = renderContainer({...childrenProps, children: main});
+  const container = renderContainer({ ...childrenProps, children: main });
 
   return <>{container}</>;
 };
 
-Object.defineProperty(Input, 'Textarea', {value: Textarea});
+Object.defineProperty(Input, 'Textarea', { value: Textarea });
 
 export default Input as MenuType;
