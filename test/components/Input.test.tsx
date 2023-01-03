@@ -3,7 +3,7 @@ import '@testing-library/jest-dom';
 import { fireEvent } from '@testing-library/react';
 import React, { useEffect, useState } from 'react';
 import Input from '../../src/components/Input';
-import { render } from '../utils/test_utils';
+import { render } from '../utils/test-utils';
 
 interface CustomInputProps {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>, value?: string) => void;
