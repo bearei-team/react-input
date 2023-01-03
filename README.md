@@ -10,10 +10,10 @@ Base input components that support React and React native
 
 #### Input Options
 
-| Name  |                Type | Required | Description                                   |
-| :---- | ------------------: | -------: | :-------------------------------------------- |
-| value | `string` `string[]` |        ✘ | Input value                                   |
-| event |           `unknown` |        ✘ | Triggers an event when a input option changes |
+| Name | Type | Required | Description |
+| :-- | --: | --: | :-- |
+| value | `string` `string[]` | ✘ | Input value |
+| event | `unknown` | ✘ | Triggers an event when a input option changes |
 
 #### Input
 
@@ -54,14 +54,14 @@ const input = (
     afterLabel="after"
     beforeLabel="before"
     onChange={() => {}}
-    renderContainer={({id, children}) => (
+    renderContainer={({ id, children }) => (
       <div id={id} tabIndex={1}>
         {children}
       </div>
     )}
-    renderLabel={({position, children}) => <span>{children}</span>}
-    renderFixed={({position, children}) => <span>{children}</span>}
-    renderMain={({id, ...props}) => <input {...props} data-id={id} />}
+    renderLabel={({ position, children }) => <span>{children}</span>}
+    renderFixed={({ position, children }) => <span>{children}</span>}
+    renderMain={({ id, ...props }) => <input {...props} data-id={id} />}
   />
 );
 
