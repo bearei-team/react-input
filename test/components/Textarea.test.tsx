@@ -3,7 +3,7 @@ import '@testing-library/jest-dom';
 import { fireEvent } from '@testing-library/react';
 import React, { useEffect, useState } from 'react';
 import Textarea from '../../src/components/Textarea';
-import { render } from '../utils/test_utils';
+import { render } from '../utils/test-utils';
 
 interface CustomTextareaProps {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>, value?: string) => void;
