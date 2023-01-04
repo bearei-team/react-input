@@ -39,7 +39,7 @@ const setup = () => {
     <Input
       defaultValue="1"
       onChange={() => {}}
-      renderMain={({ value, ...props }) => (
+      renderMain={({ value, onFocus, ...props }) => (
         <CustomInput {...{ ...props, value: value?.toString() }} />
       )}
       renderContainer={({ id, children }) => (
