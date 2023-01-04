@@ -171,7 +171,11 @@ export interface InputChildrenProps<T>
   /**
    * This function is called when the input option changes
    */
-  onChange?: <E>(e: E) => void;
+  onChange?: (
+    e:
+      | NativeSyntheticEvent<TextInputChangeEventData>
+      | ChangeEvent<HTMLInputElement>,
+  ) => void;
 }
 
 export interface InputFixedProps<T> extends InputChildrenProps<T> {
@@ -183,6 +187,7 @@ export type InputMainProps<T> = InputChildrenProps<T> &
   Pick<BaseInputProps<T>, 'ref'>;
 
 export type InputContainerProps<T> = InputChildrenProps<T>;
+export type EventType = 'onBlur' | 'onFocus' | 'onChange';
 export type MenuType = typeof Input & { Textarea: typeof Textarea };
 
 const Input = <T extends HTMLInputElement = HTMLInputElement>(
@@ -215,7 +220,11 @@ const Input = <T extends HTMLInputElement = HTMLInputElement>(
     value: '',
   });
 
-  const events = Object.keys(props).filter(key => key.startsWith('on'));
+  const bindEvenNames = ['onBlur', 'onFocus', 'onChange'];
+  const eventNames = Object.keys(props).filter(key =>
+    bindEvenNames.includes(key),
+  ) as EventType[];
+
   const platform = platformInfo();
   const childrenProps = { ...args, id, loading, disabled };
   const handleInputOptionsChange = useCallback(
@@ -232,8 +241,8 @@ const Input = <T extends HTMLInputElement = HTMLInputElement>(
     isResponse && callback?.(e);
   };
 
-  const handleCallback = (key: string) => {
-    const event = {
+  const handleCallback = (event: EventType) => {
+    const eventFunctions = {
       onBlur: handleDefaultEvent(
         (
           e:
@@ -276,7 +285,7 @@ const Input = <T extends HTMLInputElement = HTMLInputElement>(
       ),
     };
 
-    return event[key as keyof typeof event];
+    return eventFunctions[event];
   };
 
   useEffect(() => {
@@ -330,7 +339,25 @@ const Input = <T extends HTMLInputElement = HTMLInputElement>(
     prefix: prefixNode,
     suffix: suffixNode,
     afterLabel: afterLabelNode,
-    ...bindEvents(events, handleCallback),
+    ...(bindEvents(eventNames, handleCallback) as {
+      onBlur?: (
+        e:
+          | FocusEvent<T, Element>
+          | NativeSyntheticEvent<TextInputFocusEventData>,
+      ) => void;
+
+      onFocus?: (
+        e:
+          | FocusEvent<T, Element>
+          | NativeSyntheticEvent<TextInputFocusEventData>,
+      ) => void;
+
+      onChange?: (
+        e:
+          | NativeSyntheticEvent<TextInputChangeEventData>
+          | ChangeEvent<HTMLInputElement>,
+      ) => void;
+    }),
   });
 
   const container = renderContainer({ ...childrenProps, children: main });
