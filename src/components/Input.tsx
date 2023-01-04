@@ -120,14 +120,14 @@ export interface BaseInputProps<T>
    * This function is called when the input gets the focus
    */
   onFocus?: (
-    e: FocusEvent<T, Element> | NativeSyntheticEvent<TextInputFocusEventData>,
+    e: FocusEvent<T> | NativeSyntheticEvent<TextInputFocusEventData>,
   ) => void;
 
   /**
    * This function is called when the input loses focus
    */
   onBlur?: (
-    e: FocusEvent<T, Element> | NativeSyntheticEvent<TextInputFocusEventData>,
+    e: FocusEvent<T> | NativeSyntheticEvent<TextInputFocusEventData>,
   ) => void;
 
   /**
@@ -244,18 +244,12 @@ const Input = <T extends HTMLInputElement = HTMLInputElement>(
   const handleCallback = (event: EventType) => {
     const eventFunctions = {
       onBlur: handleDefaultEvent(
-        (
-          e:
-            | FocusEvent<T, Element>
-            | NativeSyntheticEvent<TextInputFocusEventData>,
-        ) => handleResponse(e, onBlur),
+        (e: FocusEvent<T> | NativeSyntheticEvent<TextInputFocusEventData>) =>
+          handleResponse(e, onBlur),
       ),
       onFocus: handleDefaultEvent(
-        (
-          e:
-            | FocusEvent<T, Element>
-            | NativeSyntheticEvent<TextInputFocusEventData>,
-        ) => handleResponse(e, onFocus),
+        (e: FocusEvent<T> | NativeSyntheticEvent<TextInputFocusEventData>) =>
+          handleResponse(e, onFocus),
       ),
       onChange: handleDefaultEvent(
         (
@@ -341,15 +335,11 @@ const Input = <T extends HTMLInputElement = HTMLInputElement>(
     afterLabel: afterLabelNode,
     ...(bindEvents(eventNames, handleCallback) as {
       onBlur?: (
-        e:
-          | FocusEvent<T, Element>
-          | NativeSyntheticEvent<TextInputFocusEventData>,
+        e: FocusEvent<T> | NativeSyntheticEvent<TextInputFocusEventData>,
       ) => void;
 
       onFocus?: (
-        e:
-          | FocusEvent<T, Element>
-          | NativeSyntheticEvent<TextInputFocusEventData>,
+        e: FocusEvent<T> | NativeSyntheticEvent<TextInputFocusEventData>,
       ) => void;
 
       onChange?: (
