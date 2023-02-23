@@ -1,6 +1,6 @@
 {
   "name": "@bearei/react-input",
-  "version": "0.0.27",
+  "version": "0.0.28",
   "main": "./lib/commonjs/index",
   "module": "./lib/module/index",
   "types": "./lib/commonjs/index.d.ts",

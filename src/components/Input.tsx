@@ -282,24 +282,6 @@ const Input = <T extends HTMLInputElement = HTMLInputElement>(
     return eventFunctions[event];
   };
 
-  useEffect(() => {
-    const nextValue = status !== 'idle' ? value : defaultValue ?? value;
-
-    nextValue &&
-      setInputOptions(currentOptions => {
-        const isUpdate =
-          Array.isArray(nextValue) && Array.isArray(currentOptions.value)
-            ? !array.isEqual(currentOptions.value, nextValue)
-            : currentOptions.value !== nextValue && status === 'succeeded';
-
-        isUpdate && handleInputOptionsChange({ value: nextValue });
-
-        return { value: nextValue };
-      });
-
-    status === 'idle' && setStatus('succeeded');
-  }, [defaultValue, handleInputOptionsChange, status, value]);
-
   const prefixNode =
     prefix &&
     renderFixed?.({ ...childrenProps, position: 'before', children: prefix });
@@ -351,6 +333,24 @@ const Input = <T extends HTMLInputElement = HTMLInputElement>(
   });
 
   const container = renderContainer({ ...childrenProps, children: main });
+
+  useEffect(() => {
+    const nextValue = status !== 'idle' ? value : defaultValue ?? value;
+
+    typeof nextValue !== 'undefined' &&
+      setInputOptions(currentOptions => {
+        const isUpdate =
+          Array.isArray(nextValue) && Array.isArray(currentOptions.value)
+            ? !array.isEqual(currentOptions.value, nextValue)
+            : currentOptions.value !== nextValue && status === 'succeeded';
+
+        isUpdate && handleInputOptionsChange({ value: nextValue });
+
+        return { value: nextValue };
+      });
+
+    status === 'idle' && setStatus('succeeded');
+  }, [defaultValue, handleInputOptionsChange, status, value]);
 
   return <>{container}</>;
 };
