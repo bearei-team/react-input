@@ -337,17 +337,18 @@ const Input = <T extends HTMLInputElement = HTMLInputElement>(
   useEffect(() => {
     const nextValue = status !== 'idle' ? value : defaultValue ?? value;
 
-    typeof nextValue !== 'undefined' &&
-      setInputOptions(currentOptions => {
+    if (typeof nextValue !== 'undefined') {
+      setInputOptions(currentlyInputOptions => {
         const isUpdate =
-          Array.isArray(nextValue) && Array.isArray(currentOptions.value)
-            ? !array.isEqual(currentOptions.value, nextValue)
-            : currentOptions.value !== nextValue && status === 'succeeded';
+          Array.isArray(nextValue) && Array.isArray(currentlyInputOptions.value)
+            ? !array.isEqual(currentlyInputOptions.value, nextValue)
+            : currentlyInputOptions.value !== nextValue;
 
         isUpdate && handleInputOptionsChange({ value: nextValue });
 
-        return { value: nextValue };
+        return isUpdate ? { value: nextValue } : currentlyInputOptions;
       });
+    }
 
     status === 'idle' && setStatus('succeeded');
   }, [defaultValue, handleInputOptionsChange, status, value]);
