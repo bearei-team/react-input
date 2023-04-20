@@ -1,4 +1,3 @@
-import * as array from '@bearei/react-util/lib/commonjs/array';
 import {
   bindEvents,
   handleDefaultEvent,
@@ -24,17 +23,6 @@ import type {
 } from 'react-native';
 import Textarea from './Textarea';
 
-/**
- * Input options
- */
-export interface InputOptions<T, E = unknown>
-  extends Pick<BaseInputProps<T>, 'value'> {
-  /**
-   * Triggers an event when a input option changes
-   */
-  event?: E;
-}
-
 export interface BaseInputProps<T>
   extends Omit<
     DetailedHTMLProps<InputHTMLAttributes<T>, T> & TextInputProps,
@@ -54,12 +42,12 @@ export interface BaseInputProps<T>
   /**
    * Input value
    */
-  value?: string | string[];
+  value?: string;
 
   /**
    * The default value for the input
    */
-  defaultValue?: string | string[];
+  defaultValue?: string;
 
   /**
    * no style input
@@ -114,7 +102,7 @@ export interface BaseInputProps<T>
   /**
    * This function is called when the input option changes
    */
-  onChange?: <E>(options: InputOptions<T, E>) => void;
+  onChange?: (options: string) => void;
 
   /**
    * This function is called when the input gets the focus
@@ -133,7 +121,7 @@ export interface BaseInputProps<T>
   /**
    * This function is called when the input value changes
    */
-  onValueChange?: (value?: string | string[]) => void;
+  onValueChange?: (value?: string) => void;
 }
 
 export type Event = 'onChange' | 'onFocus' | 'onBlur';
@@ -216,10 +204,7 @@ const Input = <T extends HTMLInputElement = HTMLInputElement>(
 
   const id = useId();
   const [status, setStatus] = useState('idle');
-  const [inputOptions, setInputOptions] = useState<InputOptions<T>>({
-    value: '',
-  });
-
+  const [inputValue, setInputValue] = useState('');
   const bindEvenNames = ['onBlur', 'onFocus', 'onChange'];
   const eventNames = Object.keys(props).filter(key =>
     bindEvenNames.includes(key),
@@ -227,10 +212,10 @@ const Input = <T extends HTMLInputElement = HTMLInputElement>(
 
   const platform = platformInfo();
   const childrenProps = { ...args, id, loading, disabled };
-  const handleInputOptionsChange = useCallback(
-    <E,>(options: InputOptions<T, E>) => {
-      onChange?.(options);
-      onValueChange?.(options.value);
+  const handleInputValueChange = useCallback(
+    (value: string) => {
+      onChange?.(value);
+      onValueChange?.(value);
     },
     [onChange, onValueChange],
   );
@@ -268,10 +253,8 @@ const Input = <T extends HTMLInputElement = HTMLInputElement>(
                     .nativeEvent.text
                 : (e as ChangeEvent<HTMLInputElement>).currentTarget.value;
 
-            const options = { event: e, value };
-
-            setInputOptions(options);
-            handleInputOptionsChange(options);
+            setInputValue(value);
+            handleInputValueChange(value);
           };
 
           handleResponse(e, handleChange);
@@ -309,7 +292,7 @@ const Input = <T extends HTMLInputElement = HTMLInputElement>(
   const main = renderMain({
     ...childrenProps,
     ref,
-    value: inputOptions.value,
+    value: inputValue,
     defaultValue,
     beforeLabel: beforeLabelNode,
     prefix: prefixNode,
@@ -338,20 +321,15 @@ const Input = <T extends HTMLInputElement = HTMLInputElement>(
     const nextValue = status !== 'idle' ? value : defaultValue ?? value;
 
     if (typeof nextValue !== 'undefined') {
-      setInputOptions(currentlyInputOptions => {
-        const isUpdate =
-          Array.isArray(nextValue) && Array.isArray(currentlyInputOptions.value)
-            ? !array.isEqual(currentlyInputOptions.value, nextValue)
-            : currentlyInputOptions.value !== nextValue;
+      setInputValue(currentlyInputValue => {
+        const isUpdate = currentlyInputValue !== nextValue;
 
-        isUpdate && handleInputOptionsChange({ value: nextValue });
-
-        return isUpdate ? { value: nextValue } : currentlyInputOptions;
+        return isUpdate ? nextValue : currentlyInputValue;
       });
     }
 
     status === 'idle' && setStatus('succeeded');
-  }, [defaultValue, handleInputOptionsChange, status, value]);
+  }, [defaultValue, status, value]);
 
   return <>{container}</>;
 };

@@ -42,7 +42,7 @@ const setup = () => {
       renderMain={({ value, onChange, ...props }) => (
         <CustomTextarea
           {...{ ...props, value: value?.toString() }}
-          onChange={(e, value) => onChange?.({ event: e, value })}
+          onChange={(e, value = '') => onChange?.(value)}
         />
       )}
       renderContainer={({ id, children }) => (
